@@ -5,10 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maruti WagonR Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js"></script>
+    <style>
+        body {
+            //background: linear-gradient(to right, #292e35, #536976);
+            background: #51853A;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
+<!-- 
+<h1>Maruti WagonR Dashboard</h1> -->
 
-<h1>Maruti WagonR Dashboard</h1>
+<!-- Image of Maruti WagonR -->
+<div style="text-align: center; background-color: #4E7F2D;">
+  <img src="assets/wagon-r.png" alt="Maruti WagonR Image" width="90%">
+</div>
+
 
 <!-- Mileage Line Chart -->
 <div style="width: 50%; float: left;">
@@ -26,26 +63,79 @@
 </div>
 
 <script>
+    $.get('vehicle-1-sync.csv', function(data) {
+        var lines = data.split("\n");
+        // var dataArr = $.map(lines, function(rowStr, index) {
+        //     if(index < 1) {
+        //         return;
+        //     }
+
+        //     var row = rowStr.split(',');
+        //     return row[0];
+        // });
+        var odoArr = [];
+        var dataArr = [];
+        $.each(lines, function(index, rowStr) {
+            if(index < 1) {
+                return;
+            }
+
+            var row = rowStr.split(',');
+            dataArr.push(row[0]);
+            odoArr.push(row[1]);
+        });
+
+        const mileageData = odoArr.reverse();
+        const dateLabel = dataArr.reverse();
+        
+        mileageChartFunc(mileageData, dateLabel);
+    });
+
     // Sample data for demonstration purposes
     const mileageData = [100, 120, 90, 110, 95, 105];
     const fuelCostData = [30, 40, 35, 45, 38, 42];
     const monthlyRefuelingData = [4, 5, 3, 6, 4, 5];
 
     // Mileage Line Chart
-    var mileageCtx = document.getElementById('mileageChart').getContext('2d');
-    var mileageChart = new Chart(mileageCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Mileage',
-                data: mileageData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        }
-    });
+    const mileageChartFunc = (mileageData, labelData) => {
+        var mileageCtx = document.getElementById('mileageChart').getContext('2d');
+        var mileageChart = new Chart(mileageCtx, {
+            type: 'line',
+            options: {
+                scales: {
+                    x: {
+                        display: true,
+                        ticks: {
+                            color: 'white'
+                        }
+
+                    },
+                    y: {
+                        ticks: {
+                            color: 'white'
+                        }
+                        
+                    }
+                },
+                backgroundColor: 'white',
+                pointBackgroundColor: 'seagreen',
+                pointRadius: .5,
+                pointHoverRadius: 4,
+                tension: 0,
+            },
+            data: {
+                labels: labelData,
+                datasets: [{
+                    label: 'Mileage',
+                    data: mileageData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fontColor: 'white',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            }
+        });
+    }
 
     // Fuel Cost Line Chart
     var fuelCostCtx = document.getElementById('fuelCostChart').getContext('2d');
