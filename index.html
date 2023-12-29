@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maruti WagonR Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Maruti WagonR Dashboard</h1>
+
+<!-- Mileage Line Chart -->
+<div style="width: 50%; float: left;">
+    <canvas id="mileageChart"></canvas>
+</div>
+
+<!-- Fuel Cost Line Chart -->
+<div style="width: 50%; float: left;">
+    <canvas id="fuelCostChart"></canvas>
+</div>
+
+<!-- Monthly Refueling Bar Chart -->
+<div style="clear: both; margin-top: 20px;">
+    <canvas id="monthlyRefuelingChart"></canvas>
+</div>
+
+<script>
+    // Sample data for demonstration purposes
+    const mileageData = [100, 120, 90, 110, 95, 105];
+    const fuelCostData = [30, 40, 35, 45, 38, 42];
+    const monthlyRefuelingData = [4, 5, 3, 6, 4, 5];
+
+    // Mileage Line Chart
+    var mileageCtx = document.getElementById('mileageChart').getContext('2d');
+    var mileageChart = new Chart(mileageCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Mileage',
+                data: mileageData,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        }
+    });
+
+    // Fuel Cost Line Chart
+    var fuelCostCtx = document.getElementById('fuelCostChart').getContext('2d');
+    var fuelCostChart = new Chart(fuelCostCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Fuel Cost',
+                data: fuelCostData,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        }
+    });
+
+    // Monthly Refueling Bar Chart
+    var monthlyRefuelingCtx = document.getElementById('monthlyRefuelingChart').getContext('2d');
+    var monthlyRefuelingChart = new Chart(monthlyRefuelingCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Refueling',
+                data: monthlyRefuelingData,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
