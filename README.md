@@ -1,2 +1,3 @@
 # wagonr.github.io
-A dashboard for my Vehicle
+A page for my WAGON-R
+https://santattech.github.io/wagonr.github.io/
