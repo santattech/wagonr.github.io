@@ -34,7 +34,7 @@ canvas {
   padding: 20px; /* Optional padding for visual clarity */
 }
 
-.row-every-mileage {
+.row-every-mileage, .row-quaterly-mileage {
   display: flex;
 }
 

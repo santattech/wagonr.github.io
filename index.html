@@ -23,10 +23,10 @@
 
 <div class="mileage-section">
     <!-- Quaterly Mileage Line Chart -->
-    <div id="every-mileage">
+    <div id="quarterly-mileage">
         <h3>Mileage in Quater</h3>
-        <div class="row-every-mileage">
-          <div class="first-column-every-mileage">Based on each quarters from the daye of purchase, we have this line graph. The vehicle is not very much in use, used only when it is highly needed.</div>
+        <div class="row-quaterly-mileage">
+          <div class="first-column-every-mileage">Based on each quarters from the day of purchase, we have this line graph. The vehicle is not very much in use, used only when it is highly needed.</div>
           <div class="second-column-every-mileage">
             <canvas id="quaterlymileageChart"></canvas>
           </div>
@@ -35,9 +35,14 @@
     </div>
 
     <!-- Mileage Line Chart -->
-    <div id="quarterly-mileage">
+    <div id="every-mileage">
         <h3>Mileage in details</h3>
-        <canvas id="mileageChart"></canvas>
+        <div class="row-every-mileage">
+            <div class="first-column-every-mileage">Based on each input from the day of purchase, we have this line graph. This is more a detailed version of the previous graph.</div>
+            <div class="second-column-every-mileage">
+                <canvas id="mileageChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
