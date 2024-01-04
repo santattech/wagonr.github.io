@@ -25,7 +25,6 @@ canvas {
 }
 
 .wagonr-img-section {
-  //background-color: #4E7F2D;
   text-align: center;
   margin-top: 15px;
 }
@@ -58,7 +57,7 @@ canvas {
   }
   
 
-#every-mileage h3, #quarterly-mileage h3 {
+#every-mileage h3, #quarterly-mileage h3, #fuel-wise-mileage h3 {
   color: #73ad3f;
   text-align: center; 
   font-size: 22px; 

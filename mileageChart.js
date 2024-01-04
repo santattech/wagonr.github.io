@@ -21,6 +21,15 @@ const mileageChartFunc = (mileageData, labelData, labelText, placeholder) => {
                   
               }
           },
+          animations: {
+            tension: {
+              duration: 2000,
+              easing: 'easeOutQuart',
+              from: 1,
+              to: 0,
+              loop: true,
+            }
+          },
           backgroundColor: 'white',
           pointBackgroundColor: 'seagreen',
           pointRadius: .5,
@@ -82,5 +91,10 @@ function convertToQuarters(dateArray) {
 
 const filteredArray = (originalArray) => {
     const formattedArr = originalArray.filter(element => element !== null && element !== undefined && element !== "");
+    return formattedArr;  
+};
+
+const removeDatePart = (originalArray) => {
+    const formattedArr = originalArray.map(element => element.split(' ')[0] );
     return formattedArr;  
 };

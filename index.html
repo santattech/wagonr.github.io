@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js"></script>
     <script src="mileageChart.js"></script>
+    <script src="milegeperLiter.js"></script>
     <style>
     </style>
 </head>
@@ -24,7 +25,7 @@
 <div class="mileage-section">
     <!-- Quaterly Mileage Line Chart -->
     <div id="quarterly-mileage">
-        <h3>Mileage in Quater</h3>
+        <h3>Distance covered in Quater</h3>
         <div class="row-quaterly-mileage">
           <div class="first-column-every-mileage">Based on each quarters from the day of purchase, we have this line graph. The vehicle is not very much in use, used only when it is highly needed.</div>
           <div class="second-column-every-mileage">
@@ -36,11 +37,22 @@
 
     <!-- Mileage Line Chart -->
     <div id="every-mileage">
-        <h3>Mileage in details</h3>
+        <h3>Distance covered in details</h3>
         <div class="row-every-mileage">
             <div class="first-column-every-mileage">Based on each input from the day of purchase, we have this line graph. This is more a detailed version of the previous graph.</div>
             <div class="second-column-every-mileage">
                 <canvas id="mileageChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mileage Line Chart -->
+    <div id="fuel-wise-mileage">
+        <h3>Mileage acheived</h3>
+        <div class="row-every-mileage">
+            <div class="first-column-every-mileage">This is actually calculating the KMs covered on an average on the data we have on the refulling of the above vehicle.</div>
+            <div class="second-column-every-mileage">
+                <canvas id="mileageFuelChart"></canvas>
             </div>
         </div>
     </div>
@@ -57,6 +69,7 @@
         // for the mileage data for each inputs
         var odoArr = [];
         var dataArr = [];
+        var fuelEntryObjects = [];
 
         $.each(lines, function(index, rowStr) {
             if(index < 1) {
@@ -66,14 +79,18 @@
             var row = rowStr.split(',');
             dataArr.push(row[0]);
             odoArr.push(row[1]);
+
+            if(row[0] !== null && row[0] !== undefined && row[0] !== "") {
+              fuelEntryObjects.push({fuel: row[2], odometer: row[1], date: row[0] });
+            }
         });
 
         dataArr = filteredArray(dataArr);
         odoArr = filteredArray(odoArr);
         const mileageData = odoArr.reverse();
-        const dateLabel = dataArr.reverse();
+        var dateLabel = dataArr.reverse();
         const quaterHashObj = convertToQuarters(dateLabel);
-
+        const mileageDateLabel = removeDatePart(dateLabel);
         // for the quarter mileage
         var quaterDateLabel = [];
         var quaterOdoDataArr = [];
@@ -95,8 +112,11 @@
             
         });
         
-        mileageChartFunc(mileageData, dateLabel, 'Mileage', 'mileageChart');
-        mileageChartFunc(quaterOdoDataArr, quaterDateLabel, 'Mileage Quaterwise', 'quaterlymileageChart');
+        mileageChartFunc(mileageData, mileageDateLabel, 'KMs covered', 'mileageChart');
+        mileageChartFunc(quaterOdoDataArr, quaterDateLabel, 'KMs covered quarterwise', 'quaterlymileageChart');
+
+        const fuelUsageDataObject = calculateMileageperLiter(fuelEntryObjects.reverse());
+        mileageChartFunc(fuelUsageDataObject.mileagePerLiterData, fuelUsageDataObject.mileagePerLiterLabel, 'KMs covered/per litre', 'mileageFuelChart');
     });
 
     // Sample data for demonstration purposes
