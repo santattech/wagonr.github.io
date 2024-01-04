@@ -4,37 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maruti WagonR Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js"></script>
+    <script src="mileageChart.js"></script>
     <style>
-        body {
-            //background: linear-gradient(to right, #292e35, #536976);
-            background: #536976;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        canvas {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
     </style>
 </head>
 <body>
@@ -42,21 +17,28 @@
 <h1>Maruti WagonR Dashboard</h1> -->
 
 <!-- Image of Maruti WagonR -->
-<div style="text-align: center; background-color: #4E7F2D;">
-  <img src="assets/wagon-r.png" alt="Maruti WagonR Image" width="90%">
+<div class='wagonr-img-section'>
+  <img src="assets/wagon-r.png" alt="Maruti WagonR Image" width="98%">
 </div>
 
+<div class="mileage-section">
+    <!-- Quaterly Mileage Line Chart -->
+    <div id="every-mileage">
+        <h3>Mileage in Quater</h3>
+        <div class="row-every-mileage">
+          <div class="first-column-every-mileage">Based on each quarters from the daye of purchase, we have this line graph. The vehicle is not very much in use, used only when it is highly needed.</div>
+          <div class="second-column-every-mileage">
+            <canvas id="quaterlymileageChart"></canvas>
+          </div>
+        </div>
+        
+    </div>
 
-<!-- Quaterly Mileage Line Chart -->
-<div style="width: 50%; float: left;">
-    <h3 style="text-align: center; font-size: medium; color: #ccc">Mileage in Quater</h3>
-    <canvas id="quaterlymileageChart"></canvas>
-</div>
-
-<!-- Mileage Line Chart -->
-<div style="width: 50%; float: left;">
-    <h3 style="text-align: center; font-size: medium; color: #ccc">Mileage in details</h3>
-    <canvas id="mileageChart"></canvas>
+    <!-- Mileage Line Chart -->
+    <div id="quarterly-mileage">
+        <h3>Mileage in details</h3>
+        <canvas id="mileageChart"></canvas>
+    </div>
 </div>
 
 <!-- Monthly Refueling Bar Chart -->
@@ -67,6 +49,7 @@
 <script>
     $.get('vehicle-1-sync.csv', function(data) {
         var lines = data.split("\n");
+        // for the mileage data for each inputs
         var odoArr = [];
         var dataArr = [];
 
@@ -80,28 +63,27 @@
             odoArr.push(row[1]);
         });
 
+        dataArr = filteredArray(dataArr);
+        odoArr = filteredArray(odoArr);
         const mileageData = odoArr.reverse();
         const dateLabel = dataArr.reverse();
         const quaterHashObj = convertToQuarters(dateLabel);
-        var quaterLabel = [];
-        var quaterData = [];
+
+        // for the quarter mileage
+        var quaterDateLabel = [];
+        var quaterOdoDataArr = [];
 
         $.each(Object.keys(quaterHashObj), function(index, year) {
             var quaters = quaterHashObj[year];
 
             $.each(Object.keys(quaters), function(index, quaterNumber) {
-                if(quaterNumber === undefined) { 
-                    return;
-                }
-                quaterLabel.push(year + ' Q' + quaterNumber);
-                console.log(quaterLabel);
+                quaterDateLabel.push(year + ' Q' + quaterNumber);
                 var dateString = quaterHashObj[year][quaterNumber].slice(-1);
                 var indexInt = dateLabel.indexOf(dateString);
 
                 if(dateString.length > 0) {
                     var indexInt = dateLabel.indexOf(dateString[0]);
-                
-                    quaterData.push(mileageData[indexInt]);
+                    quaterOdoDataArr.push(mileageData[indexInt]);
                 }
             })
 
@@ -109,96 +91,13 @@
         });
         
         mileageChartFunc(mileageData, dateLabel, 'Mileage', 'mileageChart');
-        mileageChartFunc(quaterData, quaterLabel, 'Mileage Quaterwise', 'quaterlymileageChart');
+        mileageChartFunc(quaterOdoDataArr, quaterDateLabel, 'Mileage Quaterwise', 'quaterlymileageChart');
     });
-
-    function convertToQuarters(dateArray) {
-        const quarterMap = {
-            '01': 1,
-            '02': 1,
-            '03': 1,
-            '04': 2,
-            '05': 2,
-            '06': 2,
-            '07': 3,
-            '08': 3,
-            '09': 3,
-            '10': 4,
-            '11': 4,
-            '12': 4
-        };
-
-        const quarterDates = {};
-
-        dateArray.forEach(dateString => {
-            const [datePart, timePart] = dateString.split(' ');
-            const [year, month, day] = datePart.split('-');
-            const quarter = quarterMap[month];
-
-            if (!quarterDates[year]) {
-            quarterDates[year] = {};
-            }
-
-            if (!quarterDates[year][quarter]) {
-            quarterDates[year][quarter] = [];
-            }
-
-            quarterDates[year][quarter].push(`${year}-${month}-${day} ${timePart}`);
-        });
-
-        return quarterDates;
-    }
 
     // Sample data for demonstration purposes
     const mileageData = [100, 120, 90, 110, 95, 105];
     const fuelCostData = [30, 40, 35, 45, 38, 42];
     const monthlyRefuelingData = [4, 5, 3, 6, 4, 5];
-
-    // Mileage Line Chart
-    const mileageChartFunc = (mileageData, labelData, labelText, placeholder) => {
-        var mileageCtx = document.getElementById(placeholder).getContext('2d');
-        var mileageChart = new Chart(mileageCtx, {
-            type: 'line',
-            options: {
-                scales: {
-                    x: {
-                        display: true,
-                        ticks: {
-                            color: 'white',
-                            beginAtZero: true    
-                        }
-
-                    },
-                    y: {
-                        ticks: {
-                            color: 'white',
-                            beginAtZero: true
-                        }
-                        
-                    }
-                },
-                backgroundColor: 'white',
-                pointBackgroundColor: 'seagreen',
-                pointRadius: .5,
-                pointHoverRadius: 4,
-                tension: 0,
-                beginAtZero: true
-            },
-            data: {
-                labels: labelData,
-                fontColor: 'white',
-                datasets: [{
-                    
-                    label: labelText,
-                    data: mileageData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    fontColor: 'white',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            }
-        });
-    }
 
     // Fuel Cost Line Chart
     var fuelCostCtx = document.getElementById('fuelCostChart').getContext('2d');

@@ -1,0 +1,65 @@
+body {
+  background: linear-gradient(to bottom, #f0fff0, #e0f0e0); /* Light green gradient */
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  padding: 20px 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+canvas {
+  //background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wagonr-img-section {
+  //background-color: #4E7F2D;
+  text-align: center;
+  margin-top: 15px;
+}
+
+#every-mileage, #quarterly-mileage {
+  padding: 20px; /* Optional padding for visual clarity */
+}
+
+.row-every-mileage {
+  display: flex;
+}
+
+.first-column-every-mileage {
+  float: left;
+  color: #305f07;
+  display: flex;
+  width: 20%;
+  padding: 50px 10px;
+  height: 300px;
+  line-height: 25px;
+  font-size: medium;
+}
+
+.second-column-every-mileage {
+    float: right;
+    display: flex;
+    padding-left: 10px;
+    width: 80%;
+    max-height: 450px;
+  }
+  
+
+#every-mileage h3, #quarterly-mileage h3 {
+  color: #73ad3f;
+  text-align: center; 
+  font-size: 22px; 
+}
