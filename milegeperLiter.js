@@ -7,7 +7,7 @@ const calculateMileageperLiter = (fuelEntryObjects) => {
     mileagePerLiterLabel.push(obj.date.split(' ')[0]);
 
     if(index == 0) {
-      mileagePerLiterData.push(22.4);
+      mileagePerLiterData.push(20);
     } else {
       var prevObj = fuelEntryObjects[index - 1];
       fuelConsumed = fuelConsumed + parseFloat(prevObj.fuel);
