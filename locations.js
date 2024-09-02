@@ -96,8 +96,12 @@ function getLocationsFromPouch() {
 
 function getLocationById(identifier) {
   db.get(identifier.toString()).then(function (doc) {
-    timeDiff = (Date.parse(doc.timestamp) - Date.now())/ 60000
+    timeDiff = (Date.now() - Date.parse(doc.timestamp))
 
+    // if(timeDiff > 12 * 60 * 1000) {
+    //   console.log('timediff:' + timeDiff + '  ' + Date.parse(doc.timestamp))
+    // debugging purpose
+    // }
     // older than 30 mins
     if(timeDiff > 30 * 60 * 1000) {
       console.log('deleting....')
@@ -120,8 +124,8 @@ function trackLocation() {
     });
 }
 
-// Track location every 2 minutes (120000 ms)
-setInterval(trackLocation, 30000);
+// Track location every 2 minutes (120000 ms), right now 10 secs
+setInterval(trackLocation, 10000);
 
 // Add the initial location point
 addLocation(22.608517, 88.440602);
