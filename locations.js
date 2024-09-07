@@ -1,6 +1,14 @@
 // Initialize the map and set its view to the specified coordinates
 const map = L.map('map').setView([22.6086179, 88.44061], 13);
 
+// custom marker for location
+var customIcon = L.icon({
+  iconUrl: 'assets/my-marker-icon.png',
+  iconSize: [20, 20], // Adjust the size as needed
+  iconAnchor: [5, 5],
+  popupAnchor: [1, -20]
+});
+
 // create a database
 const db = new PouchDB('myTrackerData');
 
@@ -10,20 +18,36 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-// Array to store the location points
+// Array to store the location points which needed for rendering in the map
 let locationPoints = [];
+// Array to store the data set of locations with timestamp
+let locationPointDataSet = [];
 
+function refreshLocationInformation(lat, lng) {
+  console.log('Starting adding the location...');
+  addLocation(lat, lng);
+  console.log('Finishing adding the location...');
+
+  console.log('Starting calculation of locations for last 2 mins...');
+  getDistanceforLastXMins(2);
+  console.log('Finsihing calculation of locations for last 2 mins...');
+
+  console.log('Starting calculation of locations for last 10 mins...');
+  getDistanceforLastXMins(10);
+  console.log('Finsihing calculation of locations for last 10 mins...');
+  
+}
 // Function to add a new point to the map and draw the route
 function addLocation(lat, lng) {
-    console.log('adding locations...' + Date.now())
     // locationPoints = [];
     // Prepare the data in the Pouch DB
     addLocationToPouch(lat, lng);
 
     // Get all the locations from DB
     getLocationsFromPouch();
-    console.log(locationPoints)
+    // console.log(locationPoints)
     // Add the new point to the array
+    locationPointDataSet.push({ loc: [lat, lng], createdAt: Date.now() });
     locationPoints.push([lat, lng]);
     console.log('Size of the locationPoints: ' + locationPoints.length)
     if(locationPoints.length == 0) {
@@ -43,7 +67,7 @@ function addLocation(lat, lng) {
 
     // Add markers for each location point
     locationPoints.forEach(point => {
-      L.marker(point).addTo(map);
+      L.marker(point, {icon: customIcon}).addTo(map);
     });
 
     // Draw the polyline connecting the points
@@ -80,8 +104,8 @@ function getLocationsFromPouch() {
   db.allDocs()
   .then(result => {
     const documents = result.rows;
-    console.log('All documents:', documents);
     locationPoints = []
+    locationPointDataSet = []
     // Iterate through the documents and extract location data
     locationsArr = documents.map(doc => {
       locationObj = getLocationById(doc.id);
@@ -98,18 +122,63 @@ function getLocationById(identifier) {
   db.get(identifier.toString()).then(function (doc) {
     timeDiff = (Date.now() - Date.parse(doc.timestamp))
 
-    // if(timeDiff > 12 * 60 * 1000) {
-    //   console.log('timediff:' + timeDiff + '  ' + Date.parse(doc.timestamp))
-    // debugging purpose
-    // }
     // older than 30 mins
     if(timeDiff > 30 * 60 * 1000) {
-      console.log('deleting....')
+      console.log('deleting a location 30 mins older....')
       db.remove(doc);
     } else {
+      locationPointDataSet.push({ loc: [doc.latitude, doc.longitude], createdAt: doc.timestamp });
       locationPoints.push([doc.latitude, doc.longitude]);
     }
   });
+}
+
+function getDistanceforLastXMins(mins) {
+  if(locationPointDataSet.length > 0) {
+    let totalDistance = 0;
+    filteredLocations = locationPointDataSet.filter(function(l) {return ((Date.now() - Date.parse(l.createdAt)) < (mins * 60 * 1000)) } );
+
+    for (let i = 0; i < filteredLocations.length - 1; i++) {
+      const [lat1, lon1] = filteredLocations[i].loc;
+      const [lat2, lon2] = filteredLocations[i + 1].loc;
+
+      const distance = haversineDistance(lat1, lon1, lat2, lon2);
+      totalDistance += distance;
+    }
+    
+    // console.log('Distance calculated for ' + mins + 'minutes: '+ totalDistance + 'meter');
+
+    if(mins == 2) {
+      document.getElementById('two-mins').innerHTML = totalDistance;
+    }
+
+    if(mins == 10) {
+      document.getElementById('ten-mins').innerHTML = totalDistance;
+    }
+  }
+}
+
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  // Convert latitude and longitude from degrees to radians
+  lat1 = (Math.PI * lat1) / 180;
+  lon1 = (Math.PI * lon1) / 180;
+  lat2 = (Math.PI * lat2) / 180;
+  lon2 = (Math.PI * lon2) / 180;
+
+  // Calculate the differences between the latitudes and longitudes
+  const dLat = lat2 - lat1;
+  const dLon = lon2 - lon1;
+
+  // Calculate the Haversine formula
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  // Calculate the distance in meters   
+  // (using Earth's radius in meters)
+  const distanceInMeters = 6371000 * c;
+
+  return distanceInMeters;
 }
 
 // Function to simulate location tracking every 2 minutes
@@ -117,8 +186,8 @@ function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000
-        addLocation(lat, lng);
+        randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
+        refreshLocationInformation(lat, lng);
     }, error => {
         console.error(error);
     });
@@ -126,6 +195,3 @@ function trackLocation() {
 
 // Track location every 2 minutes (120000 ms), right now 10 secs
 setInterval(trackLocation, 10000);
-
-// Add the initial location point
-addLocation(22.608517, 88.440602);
