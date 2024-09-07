@@ -1,3 +1,5 @@
+// import { haversineDistance } from "./common.js";
+
 // Initialize the map and set its view to the specified coordinates
 const map = L.map('map').setView([22.6086179, 88.44061], 13);
 
@@ -23,6 +25,14 @@ let locationPoints = [];
 // Array to store the data set of locations with timestamp
 let locationPointDataSet = [];
 
+// Load this function when page is loaded or refreshed fully
+document.addEventListener('DOMContentLoaded', function() {
+  // here we will fetch the records from the DB
+  // Get all the locations from DB
+  getLocationsFromPouch();
+  // map.fitBounds(L.polyline(locationPoints).getBounds());
+}, false);
+
 function refreshLocationInformation(lat, lng) {
   console.log('Starting adding the location...');
   addLocation(lat, lng);
@@ -36,45 +46,51 @@ function refreshLocationInformation(lat, lng) {
   getDistanceforLastXMins(10);
   console.log('Finsihing calculation of locations for last 10 mins...');
   
+  console.log('Starting calculation of locations for last 30 mins...');
+  getDistanceforLastXMins(30);
+  console.log('Finsihing calculation of locations for last 30 mins...');
 }
+
+function drawRoute() {
+  // map is global declared above top.
+  // Remove existing layers before adding the new polyline
+  map.eachLayer((layer) => {
+    if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+      map.removeLayer(layer);
+    }
+  });
+
+  // Add markers for each location point
+  locationPoints.forEach(point => {
+    L.marker(point, {icon: customIcon}).addTo(map);
+  });
+
+  // Draw the polyline connecting the points
+  L.polyline(locationPoints, {color: 'blue'}).addTo(map);
+
+  // Adjust the map view to fit the polyline
+  map.fitBounds(L.polyline(locationPoints).getBounds());
+}
+
 // Function to add a new point to the map and draw the route
 function addLocation(lat, lng) {
-    // locationPoints = [];
-    // Prepare the data in the Pouch DB
-    addLocationToPouch(lat, lng);
+  // locationPoints = [];
+  // Prepare the data in the Pouch DB
+  addLocationToPouch(lat, lng);
 
-    // Get all the locations from DB
-    getLocationsFromPouch();
-    // console.log(locationPoints)
-    // Add the new point to the array
-    locationPointDataSet.push({ loc: [lat, lng], createdAt: Date.now() });
-    locationPoints.push([lat, lng]);
-    console.log('Size of the locationPoints: ' + locationPoints.length)
-    if(locationPoints.length == 0) {
-      return ;
-    }
-    // Keep only the latest 200 points
-    // if (locationPoints.length > 200) {
-    //     locationPoints.shift();
-    // }
+  // Get all the locations from DB - now it is not needed as loaded when refreshed
+  // getLocationsFromPouch();
+  // console.log(locationPoints)
+  // Add the new point to the array
+  locationPointDataSet.push({ loc: [lat, lng], createdAt: Date.now() });
+  locationPoints.push([lat, lng]);
+  console.log('Size of the locationPoints: ' + locationPoints.length)
+  if(locationPoints.length == 0) {
+    return ;
+  }
 
-    // Remove existing layers before adding the new polyline
-    map.eachLayer((layer) => {
-        if (layer instanceof L.Polyline || layer instanceof L.Marker) {
-            map.removeLayer(layer);
-        }
-    });
-
-    // Add markers for each location point
-    locationPoints.forEach(point => {
-      L.marker(point, {icon: customIcon}).addTo(map);
-    });
-
-    // Draw the polyline connecting the points
-    L.polyline(locationPoints, {color: 'blue'}).addTo(map);
-
-    // Adjust the map view to fit the polyline
-    map.fitBounds(L.polyline(locationPoints).getBounds());
+  // Draw the routes in map from the location points    
+  drawRoute();
 }
 
 function addLocationToPouch(lat, lng) {
@@ -99,8 +115,7 @@ function addLocationToPouch(lat, lng) {
 }
 
 function getLocationsFromPouch() {
-  // first delete the old records
-
+  console.log('Calling database to load all docs of locations')
   db.allDocs()
   .then(result => {
     const documents = result.rows;
@@ -145,6 +160,10 @@ function getDistanceforLastXMins(mins) {
       const distance = haversineDistance(lat1, lon1, lat2, lon2);
       totalDistance += distance;
     }
+
+    // totalDistance is in meter. so converting to KM
+    totalDistance = Math.round((totalDistance + Number.EPSILON) * 100) / (100 * 1000)
+    totalDistance = totalDistance + ' km'
     
     // console.log('Distance calculated for ' + mins + 'minutes: '+ totalDistance + 'meter');
 
@@ -154,6 +173,10 @@ function getDistanceforLastXMins(mins) {
 
     if(mins == 10) {
       document.getElementById('ten-mins').innerHTML = totalDistance;
+    }
+
+    if(mins == 30) {
+      document.getElementById('thirty-mins').innerHTML = totalDistance;
     }
   }
 }
@@ -193,5 +216,12 @@ function trackLocation() {
     });
 }
 
-// Track location every 2 minutes (120000 ms), right now 10 secs
+// Track location every 10 secs (10000 ms), right now 10 secs
 setInterval(trackLocation, 10000);
+
+// Delete location every 10 minutes, for this we can load the DB function again 
+// which will eventually check this for old records
+setInterval(() => {
+  // Refresh the global array by getting all the locations from DB
+  getLocationsFromPouch();
+}, 600000);
