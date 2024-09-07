@@ -69,7 +69,7 @@ function drawRoute() {
   L.polyline(locationPoints, {color: 'blue'}).addTo(map);
 
   // Adjust the map view to fit the polyline
-  map.fitBounds(L.polyline(locationPoints).getBounds());
+  // map.fitBounds(L.polyline(locationPoints).getBounds());
 }
 
 // Function to add a new point to the map and draw the route
