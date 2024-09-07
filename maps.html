@@ -15,16 +15,55 @@
           height: 100%;
           width: 100%;
         }
+        
+
         .info-panel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
+          position: absolute;           /* Allows positioning over the map */
+          top: 20px;                    /* Adjust distance from the top */
+          right: 20px;                  /* Adjust distance from the right */
+          background-color: rgba(0, 0, 0, 0.7);  /* Semi-transparent dark background */
+          color: white;                 /* White text for contrast */
+          border-radius: 8px;           /* Rounded corners */
+          padding: 20px;                /* Internal padding for spacing */
+          width: 250px;                 /* Set a width for the panel */
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);  /* Subtle shadow for depth */
+          font-family: 'Arial', sans-serif;  /* Set a clean font */
+          z-index: 999;                 /* Ensure it appears on top of other elements */
         }
+
+        /* Styling the heading (h3) inside the panel */
+        .info-panel h3 {
+          margin: 0 0 10px 0;           /* No margin at the top, some margin at the bottom */
+          font-size: 1.2em;             /* Adjust the heading size */
+          font-weight: bold;
+          text-align: center;           /* Center the heading text */
+        }
+
+        /* Link styling for the heading */
+        .info-panel h3 a {
+          color: #f0e68c;               /* A fancy khaki/gold color */
+          text-decoration: none;        /* Remove underline */
+          font-weight: bold;
+          transition: color 0.3s ease;  /* Smooth transition for hover */
+        }
+
+        .info-panel h3 a:hover {
+          color: #ffd700;               /* Brighten the color on hover */
+        }
+
+        /* Paragraph styling */
+        .info-panel p {
+          font-size: .9em;               /* Base font size for paragraphs */
+          margin: 10px 0;               /* Vertical margin for spacing */
+        }
+
+        /* Styling for the span that will contain dynamic content */
+        .info-panel span {
+          font-weight: bold;            /* Make span content bold */
+          font-size: 1em;             /* Slightly larger font size */
+          color: #00fa9a;               /* A bright green color to make the data pop */
+        }
+        
     </style>
 </head>
 <body>
@@ -32,15 +71,15 @@
 <div id="map"></div>
 <div class="info-panel">
   <h3><a href='/wagonr.github.io'>Back to home</a></h3>
-  <p>The distance covered in last 2 mins: <span id="two-mins"></span></p>
-  <p>The distance covered in last 10 mins: <span id="ten-mins"></span></p>
-  <p>The speed for last 30 mins.</p>
+  <p class="distance-info">Distance in last 2 mins: <span id="two-mins"></span></p>
+  <p class="distance-info">Distance in last 10 mins: <span id="ten-mins"></span></p>
+  <p  class="distance-info">Distance in last 30 mins: <span id="thirty-mins"></p>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="//cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
-<script src="locations.js"></script>
-<script></script>
 
+<script src="locations.js"></script>
+<script type="module" src="common.js"></script>
 </body>
 </html>
