@@ -93,3 +93,7 @@ html {
     color: #00fa9a;
     font-size: 15px;
 }
+
+p.distance-info span span.extra {
+    font-size: 10px;
+}

@@ -147,7 +147,10 @@ function getLocationById(identifier) {
 function getDistanceforLastXMins(mins) {
   if(locationPointDataSet.length > 0) {
     let totalDistance = 0;
-    filteredLocations = locationPointDataSet.filter(function(l) {return ((Date.now() - Date.parse(l.createdAt)) < (mins * 60 * 1000)) } );
+    filteredLocations = locationPointDataSet.filter(function(l) {
+      let diff = Date.now() - Date.parse(l.createdAt);
+      return diff < (mins * 60 * 1000) 
+    });
 
     for (let i = 0; i < filteredLocations.length - 1; i++) {
       const [lat1, lon1] = filteredLocations[i].loc;
@@ -158,8 +161,8 @@ function getDistanceforLastXMins(mins) {
     }
 
     // totalDistance is in meter. so converting to KM
-    totalDistance = Math.round((totalDistance + Number.EPSILON) * 100) / (100 * 1000)
-    totalDistance = totalDistance + ' km'
+    totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
+    totalDistance = totalDistance + ' km <span class="extra">(Based on '+ filteredLocations.length +' route points)</span>'
     
     // console.log('Distance calculated for ' + mins + 'minutes: '+ totalDistance + 'meter');
 
@@ -224,7 +227,7 @@ function adjustLocation() {
   // Adjust the map view to fit the polyline
   // map.fitBounds(L.polyline(locationPoints).getBounds());
   let location = locationPoints[locationPoints.length - 1];
-  map.flyTo(location, 14)
+  map.flyTo(location, 17)
  }
 
 // Track location every 10 secs (10000 ms), right now 10 secs
