@@ -5,74 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elegant OSM Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        body, html {
-          margin: 0;
-          height: 100%;
-          font-family: Arial, sans-serif;
-        }
-        #map {
-          height: 100%;
-          width: 100%;
-        }
-        
-
-        .info-panel {
-          position: absolute;           /* Allows positioning over the map */
-          top: 20px;                    /* Adjust distance from the top */
-          right: 20px;                  /* Adjust distance from the right */
-          background-color: rgba(0, 0, 0, 0.7);  /* Semi-transparent dark background */
-          color: white;                 /* White text for contrast */
-          border-radius: 8px;           /* Rounded corners */
-          padding: 20px;                /* Internal padding for spacing */
-          width: 250px;                 /* Set a width for the panel */
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);  /* Subtle shadow for depth */
-          font-family: 'Arial', sans-serif;  /* Set a clean font */
-          z-index: 999;                 /* Ensure it appears on top of other elements */
-        }
-
-        /* Styling the heading (h3) inside the panel */
-        .info-panel h3 {
-          margin: 0 0 10px 0;           /* No margin at the top, some margin at the bottom */
-          font-size: 1.2em;             /* Adjust the heading size */
-          font-weight: bold;
-          text-align: center;           /* Center the heading text */
-        }
-
-        /* Link styling for the heading */
-        .info-panel h3 a {
-          color: #f0e68c;               /* A fancy khaki/gold color */
-          text-decoration: none;        /* Remove underline */
-          font-weight: bold;
-          transition: color 0.3s ease;  /* Smooth transition for hover */
-        }
-
-        .info-panel h3 a:hover {
-          color: #ffd700;               /* Brighten the color on hover */
-        }
-
-        /* Paragraph styling */
-        .info-panel p {
-          font-size: .9em;               /* Base font size for paragraphs */
-          margin: 10px 0;               /* Vertical margin for spacing */
-        }
-
-        /* Styling for the span that will contain dynamic content */
-        .info-panel span {
-          font-weight: bold;            /* Make span content bold */
-          font-size: 1em;             /* Slightly larger font size */
-          color: #00fa9a;               /* A bright green color to make the data pop */
-        }
-        
-    </style>
+    <!-- CSS for fontawsesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+    <link rel="stylesheet" href="stylesheets/map.css" />
 </head>
 <body>
 
 <div id="map"></div>
 <div class="info-panel">
-  <h3><a href='/wagonr.github.io'>Back to home</a></h3>
-  <p class="distance-info">Distance in last 2 mins: <span id="two-mins"></span></p>
-  <p class="distance-info">Distance in last 10 mins: <span id="ten-mins"></span></p>
+  <h3>
+    <a href='/wagonr.github.io'>Back to home</a>
+    <a href="/maps.html" class="refresh" alt="refresh">
+      <i class="fa fa-refresh" aria-hidden="true"></i>
+    </a>
+    <a href="javascript:;" onclick="adjustLocation()" class="location-center" alt="Adjust map">
+      <i class="fa fa-plus-circle" aria-hidden="true"></i>
+    </a>
+  </h3>
+  <p class="distance-info">Distance in last 5 mins: <span id="five-mins"></span></p>
+  <p class="distance-info">Distance in last 15 mins: <span id="fifteen-mins"></span></p>
   <p  class="distance-info">Distance in last 30 mins: <span id="thirty-mins"></p>
 </div>
 

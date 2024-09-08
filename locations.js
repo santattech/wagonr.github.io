@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // here we will fetch the records from the DB
   // Get all the locations from DB
   getLocationsFromPouch();
-  // map.fitBounds(L.polyline(locationPoints).getBounds());
 }, false);
 
 function refreshLocationInformation(lat, lng) {
@@ -38,13 +37,13 @@ function refreshLocationInformation(lat, lng) {
   addLocation(lat, lng);
   console.log('Finishing adding the location...');
 
-  console.log('Starting calculation of locations for last 2 mins...');
-  getDistanceforLastXMins(2);
-  console.log('Finsihing calculation of locations for last 2 mins...');
+  console.log('Starting calculation of locations for last 5 mins...');
+  getDistanceforLastXMins(5);
+  console.log('Finsihing calculation of locations for last 5 mins...');
 
-  console.log('Starting calculation of locations for last 10 mins...');
-  getDistanceforLastXMins(10);
-  console.log('Finsihing calculation of locations for last 10 mins...');
+  console.log('Starting calculation of locations for last 15 mins...');
+  getDistanceforLastXMins(15);
+  console.log('Finsihing calculation of locations for last 15 mins...');
   
   console.log('Starting calculation of locations for last 30 mins...');
   getDistanceforLastXMins(30);
@@ -78,9 +77,6 @@ function addLocation(lat, lng) {
   // Prepare the data in the Pouch DB
   addLocationToPouch(lat, lng);
 
-  // Get all the locations from DB - now it is not needed as loaded when refreshed
-  // getLocationsFromPouch();
-  // console.log(locationPoints)
   // Add the new point to the array
   locationPointDataSet.push({ loc: [lat, lng], createdAt: Date.now() });
   locationPoints.push([lat, lng]);
@@ -167,12 +163,12 @@ function getDistanceforLastXMins(mins) {
     
     // console.log('Distance calculated for ' + mins + 'minutes: '+ totalDistance + 'meter');
 
-    if(mins == 2) {
-      document.getElementById('two-mins').innerHTML = totalDistance;
+    if(mins == 5) {
+      document.getElementById('five-mins').innerHTML = totalDistance;
     }
 
-    if(mins == 10) {
-      document.getElementById('ten-mins').innerHTML = totalDistance;
+    if(mins == 15) {
+      document.getElementById('fifteen-mins').innerHTML = totalDistance;
     }
 
     if(mins == 30) {
@@ -204,17 +200,32 @@ function haversineDistance(lat1, lon1, lat2, lon2) {
   return distanceInMeters;
 }
 
+
+function getRandomInRange(from, to, fixed) {
+  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+  // .toFixed() returns string, so ' * 1' is a trick to convert to number
+}
 // Function to simulate location tracking every 2 minutes
 function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
+        // const lat = getRandomInRange(-180, 180, 3);
+        // const lng = getRandomInRange(-180, 180, 3);
         randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
         refreshLocationInformation(lat, lng);
     }, error => {
         console.error(error);
     });
 }
+
+
+function adjustLocation() {
+  // Adjust the map view to fit the polyline
+  // map.fitBounds(L.polyline(locationPoints).getBounds());
+  let location = locationPoints[locationPoints.length - 1];
+  map.flyTo(location, 14)
+ }
 
 // Track location every 10 secs (10000 ms), right now 10 secs
 setInterval(trackLocation, 10000);
