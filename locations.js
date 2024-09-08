@@ -37,17 +37,17 @@ function refreshLocationInformation(lat, lng) {
   addLocation(lat, lng);
   console.log('Finishing adding the location...');
 
-  console.log('Starting calculation of locations for last 5 mins...');
+  // console.log('Starting calculation of locations for last 5 mins...');
   getDistanceforLastXMins(5);
-  console.log('Finsihing calculation of locations for last 5 mins...');
+  // console.log('Finsihing calculation of locations for last 5 mins...');
 
-  console.log('Starting calculation of locations for last 15 mins...');
+  // console.log('Starting calculation of locations for last 15 mins...');
   getDistanceforLastXMins(15);
-  console.log('Finsihing calculation of locations for last 15 mins...');
+  // console.log('Finsihing calculation of locations for last 15 mins...');
   
-  console.log('Starting calculation of locations for last 30 mins...');
+  // console.log('Starting calculation of locations for last 30 mins...');
   getDistanceforLastXMins(30);
-  console.log('Finsihing calculation of locations for last 30 mins...');
+  // console.log('Finsihing calculation of locations for last 30 mins...');
 }
 
 function drawRoute() {
@@ -78,9 +78,8 @@ function addLocation(lat, lng) {
   addLocationToPouch(lat, lng);
 
   // Add the new point to the array
-  locationPointDataSet.push({ loc: [lat, lng], createdAt: Date.now() });
+  locationPointDataSet.push({ loc: [lat, lng], createdAt: new Date().toISOString() });
   locationPoints.push([lat, lng]);
-  console.log('Size of the locationPoints: ' + locationPoints.length)
   if(locationPoints.length == 0) {
     return ;
   }
@@ -148,8 +147,9 @@ function getDistanceforLastXMins(mins) {
   if(locationPointDataSet.length > 0) {
     let totalDistance = 0;
     filteredLocations = locationPointDataSet.filter(function(l) {
-      let diff = Date.now() - Date.parse(l.createdAt);
-      return diff < (mins * 60 * 1000) 
+      // different in seconds
+      let diff = (Date.now() - Date.parse(l.createdAt))/ 1000;
+      return diff < (mins * 60) 
     });
 
     for (let i = 0; i < filteredLocations.length - 1; i++) {
@@ -164,8 +164,6 @@ function getDistanceforLastXMins(mins) {
     totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
     totalDistance = totalDistance + ' km <span class="extra">(Based on '+ filteredLocations.length +' route points)</span>'
     
-    // console.log('Distance calculated for ' + mins + 'minutes: '+ totalDistance + 'meter');
-
     if(mins == 5) {
       document.getElementById('five-mins').innerHTML = totalDistance;
     }
@@ -213,8 +211,8 @@ function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        // const lat = getRandomInRange(-180, 180, 3);
-        // const lng = getRandomInRange(-180, 180, 3);
+        // const lat = getRandomInRange(2, 5, 3);
+        // const lng = getRandomInRange(66, 69, 3);
         randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
         refreshLocationInformation(lat, lng);
     }, error => {
@@ -231,11 +229,11 @@ function adjustLocation() {
  }
 
 // Track location every 10 secs (10000 ms), right now 10 secs
-setInterval(trackLocation, 10000);
+setInterval(trackLocation, 5000);
 
-// Delete location every 10 minutes, for this we can load the DB function again 
+// Delete location every 2 minutes, for this we can load the DB function again 
 // which will eventually check this for old records
 setInterval(() => {
   // Refresh the global array by getting all the locations from DB
   getLocationsFromPouch();
-}, 600000);
+}, 120000);
