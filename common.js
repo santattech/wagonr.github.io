@@ -20,3 +20,9 @@ export function haversineDistance(lat1, lon1, lat2, lon2) {
 
   return distanceInMeters;
 }
+
+
+export function getRandomInRange(from, to, fixed) {
+  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+  // .toFixed() returns string, so ' * 1' is a trick to convert to number
+}
