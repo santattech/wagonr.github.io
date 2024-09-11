@@ -1,4 +1,4 @@
-// import { haversineDistance } from "./common.js";
+import { haversineDistance, getRandomInRange } from "./common.js";
 
 // Initialize the map and set its view to the specified coordinates
 const map = L.map('map').setView([22.6086179, 88.44061], 13);
@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get all the locations from DB
   getLocationsFromPouch();
 }, false);
+
+const locationCenterBtn = document.querySelector(".location-center");
+locationCenterBtn.addEventListener("click", adjustLocation);
 
 function refreshLocationInformation(lat, lng) {
   console.log('Starting adding the location...');
@@ -117,8 +120,8 @@ function getLocationsFromPouch() {
     locationPoints = []
     locationPointDataSet = []
     // Iterate through the documents and extract location data
-    locationsArr = documents.map(doc => {
-      locationObj = getLocationById(doc.id);
+    let locationsArr = documents.map(doc => {
+      return getLocationById(doc.id);
     });
 
     return locationsArr;
@@ -130,10 +133,10 @@ function getLocationsFromPouch() {
 
 function getLocationById(identifier) {
   db.get(identifier.toString()).then(function (doc) {
-    timeDiff = (Date.now() - Date.parse(doc.timestamp))
+    let timeDiff = (Date.now() - Date.parse(doc.timestamp))
 
     // older than 30 mins
-    if(timeDiff > 30 * 60 * 1000) {
+    if(timeDiff > 60 * 60 * 1000) {
       console.log('deleting a location 30 mins older....')
       db.remove(doc);
     } else {
@@ -146,7 +149,7 @@ function getLocationById(identifier) {
 function getDistanceforLastXMins(mins) {
   if(locationPointDataSet.length > 0) {
     let totalDistance = 0;
-    filteredLocations = locationPointDataSet.filter(function(l) {
+    let filteredLocations = locationPointDataSet.filter(function(l) {
       // different in seconds
       let diff = (Date.now() - Date.parse(l.createdAt))/ 1000;
       return diff < (mins * 60) 
@@ -178,42 +181,14 @@ function getDistanceforLastXMins(mins) {
   }
 }
 
-function haversineDistance(lat1, lon1, lat2, lon2) {
-  // Convert latitude and longitude from degrees to radians
-  lat1 = (Math.PI * lat1) / 180;
-  lon1 = (Math.PI * lon1) / 180;
-  lat2 = (Math.PI * lat2) / 180;
-  lon2 = (Math.PI * lon2) / 180;
-
-  // Calculate the differences between the latitudes and longitudes
-  const dLat = lat2 - lat1;
-  const dLon = lon2 - lon1;
-
-  // Calculate the Haversine formula
-  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  // Calculate the distance in meters   
-  // (using Earth's radius in meters)
-  const distanceInMeters = 6371000 * c;
-
-  return distanceInMeters;
-}
-
-
-function getRandomInRange(from, to, fixed) {
-  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
-  // .toFixed() returns string, so ' * 1' is a trick to convert to number
-}
 // Function to simulate location tracking every 2 minutes
 function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        // const lat = getRandomInRange(2, 5, 3);
-        // const lng = getRandomInRange(66, 69, 3);
-        randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
+        // const lat = getRandomInRange(21, 5, 3);
+        // const lng = getRandomInRange(86, 69, 3);
+        // randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
         refreshLocationInformation(lat, lng);
     }, error => {
         console.error(error);
@@ -225,7 +200,7 @@ function adjustLocation() {
   // Adjust the map view to fit the polyline
   // map.fitBounds(L.polyline(locationPoints).getBounds());
   let location = locationPoints[locationPoints.length - 1];
-  map.flyTo(location, 17)
+  map.flyTo(location, 15)
  }
 
 // Track location every 10 secs (10000 ms), right now 10 secs
