@@ -6,7 +6,7 @@ export const map = L.map('map').setView([22.6086179, 88.44061], 13);
 // custom marker for location
 export var customIcon = L.icon({
   iconUrl: 'assets/my-marker-icon.png',
-  iconSize: [20, 20], // Adjust the size as needed
+  iconSize: [10, 10], // Adjust the size as needed
   iconAnchor: [5, 5],
   popupAnchor: [1, -20]
 });
@@ -46,12 +46,21 @@ export function getDistanceforLastXMins(mins, locationPointDataSet) {
   }
 }
 
-export function determineColorBasedOnSpeed(lat, lng, timeRangeInSec) {
+export function determineColorBasedOnSpeed(lat, lng, lat2, lng2, timeRangeInSec) {
   var color = '';
-  // distance in meter
-  let distance = haversineDistance(lat, lng);
-  let speed = ((distance/ timeRangeInSec) * 3600)/ 1000;
+  if(typeof lat == "undefined") {
+    lat = lat2;
+  }
 
+  if(typeof lng == "undefined") {
+    lng = lng2;
+  } 
+  // distance in meter
+  let distance = haversineDistance(lat, lng, lat2, lng2);
+  // console.log(distance);
+  let speed = ((distance/ timeRangeInSec) * 3600)/ 1000;
+  console.log(speed)
+  
   if(speed < 2.5) {
     color = '#FF0000'
   } else if(speed < 5.0) {

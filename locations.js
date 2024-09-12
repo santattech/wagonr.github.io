@@ -1,4 +1,4 @@
-import {  } from "./common.js";
+import {  getRandomInRange } from "./common.js";
 import { map, customIcon, getDistanceforLastXMins, determineColorBasedOnSpeed } from "./map.js";
 
 // create a database
@@ -12,6 +12,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Array to store the location points which needed for rendering in the map
 let locationPoints = [];
+let prev_lat = '';
+let prev_lng = '';
+let deleteThreashold = 60;
 // Array to store the data set of locations with timestamp
 let locationPointDataSet = [];
 
@@ -59,7 +62,18 @@ function drawRoute() {
   });
 
   // Draw the polyline connecting the points
-  L.polyline(locationPoints, {color: 'blue'}).addTo(map);
+  // L.polyline(locationPoints, {color: 'blue'}).addTo(map);
+
+  // Assuming locationPointDataSet contains objects with loc, createdAt, and colorCode
+  for (let i = 0; i < locationPointDataSet.length - 1; i++) {
+    // console.log(locationPointDataSet[i].colorCode);
+    // Get the current and next points
+    let point1 = locationPointDataSet[i].loc;
+    let point2 = locationPointDataSet[i + 1].loc;
+
+    // Create a polyline between the two points with the respective colorCode
+    L.polyline([point1, point2], { color: locationPointDataSet[i].colorCode || 'blue' }).addTo(map);
+  }
 
   // Adjust the map view to fit the polyline
   // map.fitBounds(L.polyline(locationPoints).getBounds());
@@ -70,11 +84,11 @@ function addLocation(lat, lng) {
   // locationPoints = [];
   // Prepare the data in the Pouch DB
   addLocationToPouch(lat, lng);
-  console.log(document)
+
   // Add the new point to the array
   // locationPointDataSet.push({ loc: [lat, lng], createdAt: document['timestamp'], colorCode: document['colorCode'] });
-  locationPoints.push([lat, lng]);
-  if(locationPoints.length == 0) {
+  
+  if(locationPointDataSet.length == 0) {
     return ;
   }
 
@@ -86,7 +100,8 @@ function addLocationToPouch(lat, lng) {
   // Prepare the DB
   const timestamp = new Date().toISOString();
   // here the timeDiff is 5 secs
-  const colorCode = determineColorBasedOnSpeed(lat, lng, 5);
+  let colorCode = determineColorBasedOnSpeed(prev_lat, prev_lng, lat, lng, 5);
+
   // prepare the document for pouch
   const document = {
     "_id": Date.now().toString(),
@@ -101,6 +116,8 @@ function addLocationToPouch(lat, lng) {
   .then(response => {
     console.log('Document inserted successfully:', response);
     locationPointDataSet.push({ loc: [lat, lng], createdAt: document['timestamp'], colorCode: document['colorCode'] || 'blue' });
+    prev_lat = lat
+    prev_lng = lng
   })
   .catch(error => {
     console.error('Error inserting document:', error);
@@ -112,7 +129,7 @@ function getLocationsFromPouch() {
   db.allDocs()
   .then(result => {
     const documents = result.rows;
-    locationPoints = []
+    // locationPoints = []
     locationPointDataSet = []
     // Iterate through the documents and extract location data
     let locationsArr = documents.map(doc => {
@@ -131,12 +148,12 @@ function getLocationById(identifier) {
     let timeDiff = (Date.now() - Date.parse(doc.timestamp))
 
     // older than 30 mins
-    if(timeDiff > 60 * 60 * 1000) {
+    if(timeDiff > deleteThreashold * 60 * 1000) {
       console.log('deleting a location 30 mins older....')
       db.remove(doc);
     } else {
-      locationPointDataSet.push({ loc: [doc.latitude, doc.longitude], createdAt: doc.timestamp });
-      locationPoints.push([doc.latitude, doc.longitude]);
+      // console.log(doc.colorCode)
+      locationPointDataSet.push({ loc: [doc.latitude, doc.longitude], createdAt: doc.timestamp, colorCode: doc.colorCode   });
     }
   });
 }
@@ -146,8 +163,8 @@ function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
-        // const lat = getRandomInRange(21, 5, 3);
-        // const lng = getRandomInRange(86, 69, 3);
+        // const lat = getRandomInRange(21, 22, 3);
+        // const lng = getRandomInRange(86, 89, 3);
         // randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
         refreshLocationInformation(lat, lng);
     }, error => {
@@ -159,7 +176,8 @@ function trackLocation() {
 function adjustLocation() {
   // Adjust the map view to fit the polyline
   // map.fitBounds(L.polyline(locationPoints).getBounds());
-  let location = locationPoints[locationPoints.length - 1];
+  
+  let location = locationPointDataSet[locationPointDataSet.length - 1].loc;
   map.flyTo(location, 17)
  }
 
