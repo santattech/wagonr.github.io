@@ -10,6 +10,26 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+// Add the wakeF function to keep the screen on from mobile
+let wakeLock = null;
+const wakeF = async () => {
+  if ('wakeLock' in navigator) {
+    console.log("waked")
+  } else {
+    return
+  }
+
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    console.log('Wake Lock is active!');
+  } catch (err) {
+    // The Wake Lock request has failed - usually system related, such as battery.
+    console.log(`${err.name}, ${err.message}`);
+  }
+}
+
+wakeF();
+
 // Array to store the location points which needed for rendering in the map
 let locationPoints = [];
 let prev_lat = '';
