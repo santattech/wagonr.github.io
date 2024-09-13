@@ -14,7 +14,13 @@
 <div id="map"></div>
 <div class="info-panel">
   <h3>
-    <a href='/wagonr.github.io'>Back to home</a>
+    <div class="color-indicator">
+      <span class="red">2.5</span>
+      <span class="green">20</span>
+      <span class="deep-green">40</span>
+      <span class="blue">65</span>
+      <span class="maroon">65+</span>
+    </div>
     <a href="/wagonr.github.io/maps.html" class="refresh" alt="refresh">
       <i class="fa fa-refresh" aria-hidden="true"></i>
     </a>
@@ -22,9 +28,10 @@
       <i class="fa fa-plus-circle" aria-hidden="true"></i>
     </a>
   </h3>
+  <p>Current speed: <span id="current-speed"></span></p>
   <p class="distance-info">Distance in last 5 mins: <span id="five-mins"></span></p>
   <p class="distance-info">Distance in last 15 mins: <span id="fifteen-mins"></span></p>
-  <p  class="distance-info">Distance in last 30 mins: <span id="thirty-mins"></p>
+  <p  class="distance-info">Distance in last 60 mins: <span id="sixty-mins"></p>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>

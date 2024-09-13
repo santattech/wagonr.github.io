@@ -30,19 +30,30 @@ export function getDistanceforLastXMins(mins, locationPointDataSet) {
 
     // totalDistance is in meter. so converting to KM
     totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
-    totalDistance = totalDistance + ' km <span class="extra">(Based on '+ filteredLocations.length +' route points)</span>'
+    // calculate speed
+    var currentSpeed;
+
+    if(mins == 5) {
+      currentSpeed = (totalDistance * 60/5);
+      currentSpeed = currentSpeed.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' km';
+    }
+
+    totalDistance = totalDistance.toLocaleString('en-US', { maximumFractionDigits: 3 }) + ' km <span class="extra">('+ filteredLocations.length +' rps)</span>'
     
     if(mins == 5) {
       document.getElementById('five-mins').innerHTML = totalDistance;
+      document.getElementById('current-speed').innerHTML = currentSpeed;
     }
 
     if(mins == 15) {
       document.getElementById('fifteen-mins').innerHTML = totalDistance;
     }
 
-    if(mins == 30) {
-      document.getElementById('thirty-mins').innerHTML = totalDistance;
+    if(mins == 60) {
+      document.getElementById('sixty-mins').innerHTML = totalDistance;
     }
+
+
   }
 }
 
@@ -63,8 +74,6 @@ export function determineColorBasedOnSpeed(lat, lng, lat2, lng2, timeRangeInSec)
   
   if(speed < 2.5) {
     color = '#FF0000'
-  } else if(speed < 5.0) {
-    color = '#AAFF00'
   } else if(speed < 20.0) {
     color = '#7CFC00'
   } else if(speed < 40.0) {
@@ -72,7 +81,7 @@ export function determineColorBasedOnSpeed(lat, lng, lat2, lng2, timeRangeInSec)
   } else if(speed < 65.0) {
     color = '#0000FF'
   } else {
-    color = '#FFA500'
+    color = '#800000'
   }
 
   return color;

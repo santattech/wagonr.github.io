@@ -31,7 +31,7 @@ const wakeF = async () => {
 wakeF();
 
 // Array to store the location points which needed for rendering in the map
-let locationPoints = [];
+// let locationPoints = [];
 let prev_lat = '';
 let prev_lng = '';
 let deleteThreashold = 60;
@@ -62,7 +62,7 @@ function refreshLocationInformation(lat, lng) {
   // console.log('Finsihing calculation of locations for last 15 mins...');
   
   // console.log('Starting calculation of locations for last 30 mins...');
-  getDistanceforLastXMins(30, locationPointDataSet);
+  getDistanceforLastXMins(60, locationPointDataSet);
   // console.log('Finsihing calculation of locations for last 30 mins...');
 }
 
