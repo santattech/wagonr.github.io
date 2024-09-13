@@ -31,7 +31,6 @@ const wakeF = async () => {
 wakeF();
 
 // Array to store the location points which needed for rendering in the map
-// let locationPoints = [];
 let prev_lat = '';
 let prev_lng = '';
 let deleteThreashold = 60;
@@ -101,7 +100,6 @@ function drawRoute() {
 
 // Function to add a new point to the map and draw the route
 function addLocation(lat, lng) {
-  // locationPoints = [];
   // Prepare the data in the Pouch DB
   addLocationToPouch(lat, lng);
 
@@ -149,7 +147,6 @@ function getLocationsFromPouch() {
   db.allDocs()
   .then(result => {
     const documents = result.rows;
-    // locationPoints = []
     locationPointDataSet = []
     // Iterate through the documents and extract location data
     let locationsArr = documents.map(doc => {
@@ -194,9 +191,6 @@ function trackLocation() {
 
 
 function adjustLocation() {
-  // Adjust the map view to fit the polyline
-  // map.fitBounds(L.polyline(locationPoints).getBounds());
-  
   let location = locationPointDataSet[locationPointDataSet.length - 1].loc;
   map.flyTo(location, 17)
  }
