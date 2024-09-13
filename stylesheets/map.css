@@ -10,90 +10,182 @@ html {
     width: 100%;
 }
 
-.info-panel {
-    position: absolute;
-    /* Allows positioning over the map */
-    top: 20px;
-    /* Adjust distance from the top */
-    right: 20px;
-    /* Adjust distance from the right */
-    background-color: rgba(0, 0, 0, 0.7);
-    /* Semi-transparent dark background */
-    color: white;
-    /* White text for contrast */
-    border-radius: 8px;
-    /* Rounded corners */
-    padding: 20px;
-    /* Internal padding for spacing */
-    width: 250px;
-    /* Set a width for the panel */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    /* Subtle shadow for depth */
-    font-family: 'Arial', sans-serif;
-    /* Set a clean font */
-    z-index: 999;
-    /* Ensure it appears on top of other elements */
+@media only screen and (min-width: 200px) {
+    .info-panel {
+        position: absolute;
+        /* Allows positioning over the map */
+        top: 20px;
+        /* Adjust distance from the top */
+        right: 20px;
+        /* Adjust distance from the right */
+        background-color: rgba(0, 0, 0, 0.7);
+        /* Semi-transparent dark background */
+        color: white;
+        /* White text for contrast */
+        border-radius: 8px;
+        /* Rounded corners */
+        padding: 10px;
+        max-height: 80px;
+        overflow: scroll;
+        /* Internal padding for spacing */
+        width: 130px;
+        /* Set a width for the panel */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        /* Subtle shadow for depth */
+        font-family: 'Arial', sans-serif;
+        /* Set a clean font */
+        z-index: 999;
+        /* Ensure it appears on top of other elements */
+    }
+
+    /* Styling the heading (h3) inside the panel */
+    .info-panel h3 {
+        margin: 0 0 10px 0;
+        /* No margin at the top, some margin at the bottom */
+        font-size: 1.2em;
+        /* Adjust the heading size */
+        font-weight: bold;
+        text-align: center;
+        /* Center the heading text */
+    }
+
+    /* Link styling for the heading */
+    .info-panel h3 a {
+        color: #f0e68c;
+        /* A fancy khaki/gold color */
+        text-decoration: none;
+        /* Remove underline */
+        font-weight: bold;
+        transition: color 0.3s ease;
+        /* Smooth transition for hover */
+    }
+
+    .info-panel h3 a:hover {
+        color: #ffd700;
+        /* Brighten the color on hover */
+    }
+
+    /* Paragraph styling */
+    .info-panel p {
+        font-size: 10px;
+        /* Base font size for paragraphs */
+        margin: 10px 0;
+        /* Vertical margin for spacing */
+    }
+
+    /* Styling for the span that will contain dynamic content */
+    .info-panel span {
+        font-weight: normal;
+        /* Make span content bold */
+        font-size: 10px;
+        /* Slightly larger font size */
+        color: #00fa9a;
+        /* A bright green color to make the data pop */
+    }
+
+    div.color-indicator span {
+        box-shadow: 0px 4px 15px -5px;
+        color: white;
+        font-size: 10px;
+        padding: 2px;
+        float: left;
+        z-index: 10;
+    }
+
+    div.color-indicator span.red {
+        border-radius: 10px 0 0 10px;
+    }
+
+    div.color-indicator span.maroon {
+        border-radius: 0 10px 10px 0;
+    }
+
+    .refresh, .location-center {
+        margin-left: 10px;
+    }
+
+    .refresh i {
+        color: #00fa9a;
+        font-size: 10px;
+    }
+
+    .location-center i {
+        color: #00fa9a;
+        font-size: 10px;
+    }
+
+    p.distance-info span span.extra {
+        font-size: 8px;
+    }
+
+    .red {
+        background: linear-gradient(to bottom, #FF0000, #f56106);
+    }
+
+    .green {
+        background: linear-gradient(to bottom, #7CFC00, #57ae14);
+    }
+
+    .blue {
+        background: linear-gradient(to bottom, #0000FF, #12276d);
+    }
+
+    .deep-green {
+        background: linear-gradient(to bottom, #228B22, #3f5b3f)
+    }
+
+    .maroon {
+        background: linear-gradient(to bottom, #800000, #4d0606)
+    }
 }
 
-/* Styling the heading (h3) inside the panel */
-.info-panel h3 {
-    margin: 0 0 10px 0;
-    /* No margin at the top, some margin at the bottom */
-    font-size: 1.2em;
-    /* Adjust the heading size */
-    font-weight: bold;
-    text-align: center;
-    /* Center the heading text */
+@media only screen and (min-width: 500px) {
+    .info-panel {
+        padding: 20px;
+        max-height: 300px;
+        overflow: unset;
+        /* Internal padding for spacing */
+        width: unset;
+        /* Set a width for the panel */
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        /* Subtle shadow for depth */
+    }
+    
+    .info-panel p {
+        font-size: .9em;
+        /* Base font size for paragraphs */
+    }
+
+    .info-panel span {
+        font-weight: bold;
+        /* Make span content bold */
+        font-size: 1em;
+        /* Slightly larger font size */
+    }
+
+    div.color-indicator span {
+        box-shadow: 0px 4px 20px -5px;
+        color: white;
+        font-size: 12px;
+        padding: 6px;
+        float: left;
+        z-index: 10;
+    }
+
+    p.distance-info span span.extra {
+        font-size: 10px;
+    }
+
+    .refresh i {
+        font-size: 15px;
+    }
+
+    .location-center i {
+        font-size: 15px;
+    }
 }
 
-/* Link styling for the heading */
-.info-panel h3 a {
-    color: #f0e68c;
-    /* A fancy khaki/gold color */
-    text-decoration: none;
-    /* Remove underline */
-    font-weight: bold;
-    transition: color 0.3s ease;
-    /* Smooth transition for hover */
-}
 
-.info-panel h3 a:hover {
-    color: #ffd700;
-    /* Brighten the color on hover */
-}
 
-/* Paragraph styling */
-.info-panel p {
-    font-size: .9em;
-    /* Base font size for paragraphs */
-    margin: 10px 0;
-    /* Vertical margin for spacing */
-}
 
-/* Styling for the span that will contain dynamic content */
-.info-panel span {
-    font-weight: bold;
-    /* Make span content bold */
-    font-size: 1em;
-    /* Slightly larger font size */
-    color: #00fa9a;
-    /* A bright green color to make the data pop */
-}
 
-.refresh, .location-center {
-    margin-left: 10px;
-}
-
-.refresh i {
-    color: #00fa9a;
-    font-size: 15px;
-}
-
-.location-center i {
-    color: #00fa9a;
-    font-size: 15px;
-}
-
-p.distance-info span span.extra {
-    font-size: 10px;
-}
