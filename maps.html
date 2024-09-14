@@ -8,6 +8,42 @@
     <!-- CSS for fontawsesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
     <link rel="stylesheet" href="stylesheets/map.css" />
+    <style>
+    
+        /* CSS for the modal and its contents */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content {
+            text-align: center;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+   
+    </style>
 </head>
 <body>
 
@@ -31,13 +67,40 @@
   <p>Current speed: <span id="current-speed"></span></p>
   <p class="distance-info">Distance in last 5 mins: <span id="five-mins"></span></p>
   <p class="distance-info">Distance in last 15 mins: <span id="fifteen-mins"></span></p>
-  <p  class="distance-info">Distance in last 60 mins: <span id="sixty-mins"></p>
+  <p class="distance-info">Distance in last 60 mins: <span id="sixty-mins"></p>
+  <div class="destination">
+    <button class="">Enter location details</button>
+  </div>
+</div>
+<div id="myModal" class="modal">
+  <div class="modal-content">
+      <h2>Enter Latitude and Longitude</h2>
+      <input type="text" class="input-field" placeholder="Latitude">
+      <input type="text" class="input-field" placeholder="Longitude">
+      <button class="close-button">&times;</button>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="//cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
 
 <script type="module" src="locations.js"></script>
+<script>
+  // JavaScript to handle modal opening and closing
+  const openModalButton = document.getElementById('openModalButton');
+  const modal = document.getElementById('myModal');
+  const closeButton = document.querySelector('.close-button');   
+
+
+  openModalButton.addEventListener('click', () => {
+      modal.style.display = 'block';
+  });
+
+  closeButton.addEventListener('click', () => {
+      modal.style.display   
+= 'none';
+  });
+</script>
 
 </body>
 </html>
