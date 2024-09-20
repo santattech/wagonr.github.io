@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
 const locationCenterBtn = document.querySelector(".location-center");
 locationCenterBtn.addEventListener("click", adjustLocation);
 
+const toggleDisplayLink = document.querySelector(".toggle-display");
+toggleDisplayLink.addEventListener("click", toggleDisplayFunc);
+
 function refreshLocationInformation(lat, lng) {
   console.log('Starting adding the location...');
   addLocation(lat, lng);
@@ -193,7 +196,29 @@ function trackLocation() {
 function adjustLocation() {
   let location = locationPointDataSet[locationPointDataSet.length - 1].loc;
   map.flyTo(location, 17)
- }
+}
+
+function toggleDisplayFunc() {
+  let display = '';
+  const elements = document.querySelectorAll("p.distance-info");
+  const infoPanel = document.querySelector('.info-panel');
+
+  elements.forEach(function(elem) {
+    if(elem.style.display == 'none') {
+      elem.style.display = 'block';
+    } else {
+      elem.style.display = 'none';
+      display = 'hide'
+    }
+  });
+
+  if(display == 'hide') {
+    infoPanel.classList.add('large-display');
+  } else {
+    infoPanel.classList.remove('large-display');
+  }
+  
+}
 
 // Track location every 10 secs (10000 ms), right now 10 secs
 setInterval(trackLocation, 5000);

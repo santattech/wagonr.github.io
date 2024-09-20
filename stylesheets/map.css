@@ -11,6 +11,7 @@ html {
 }
 
 @media only screen and (min-width: 200px) {
+    
     .info-panel {
         position: absolute;
         /* Allows positioning over the map */
@@ -37,6 +38,27 @@ html {
         z-index: 999;
         /* Ensure it appears on top of other elements */
     }
+
+    .large-display {
+        right: unset;
+        text-align: center;
+        top: 100px;
+        margin: 0 auto;
+        max-height: unset;
+        max-width: unset;
+        width: 95%;
+        height: 50%;
+        margin: 0 auto !important;
+    }
+
+    .large-display p {
+        font-size:30px !important;
+    }
+
+    .large-display span {
+        font-size:24px !important;
+    }
+    
 
     /* Styling the heading (h3) inside the panel */
     .info-panel h3 {
@@ -150,6 +172,14 @@ html {
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
         /* Subtle shadow for depth */
     }
+
+    .large-display {
+        top: 10px;
+        width: 98%;
+        height: 20%;
+        padding: 5px;
+        margin: 0 15px !important;   
+    }
     
     .info-panel p {
         font-size: .9em;
@@ -182,7 +212,7 @@ html {
 
     .location-center i {
         font-size: 15px;
-    }
+    }  
 }
 
 
