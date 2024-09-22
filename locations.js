@@ -1,5 +1,5 @@
 import {  getRandomInRange } from "./common.js";
-import { map, customIcon, getDistanceforLastXMins, determineColorBasedOnSpeed } from "./map.js";
+import { map, customIcon, getDistanceforLastXMins, getCurrentSpeed, determineColorBasedOnSpeed } from "./map.js";
 
 // create a database
 const db = new PouchDB('myTrackerData');
@@ -33,7 +33,12 @@ wakeF();
 // Array to store the location points which needed for rendering in the map
 let prev_lat = '';
 let prev_lng = '';
+// in minutes
 let deleteThreashold = 60;
+
+// Switch on test mode for longer distance
+let testMode = true;
+
 // Array to store the data set of locations with timestamp
 let locationPointDataSet = [];
 
@@ -66,6 +71,9 @@ function refreshLocationInformation(lat, lng) {
   // console.log('Starting calculation of locations for last 30 mins...');
   getDistanceforLastXMins(60, locationPointDataSet);
   // console.log('Finsihing calculation of locations for last 30 mins...');
+
+  // Log speed
+  getCurrentSpeed(locationPointDataSet);
 }
 
 function drawRoute() {
@@ -181,12 +189,13 @@ function getLocationById(identifier) {
 // Function to simulate location tracking every 2 minutes
 function trackLocation() {
     navigator.geolocation.getCurrentPosition(position => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        // const lat = getRandomInRange(21, 22, 3);
-        // const lng = getRandomInRange(86, 89, 3);
-        // randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
-        refreshLocationInformation(lat, lng);
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      // const lat = getRandomInRange(21, 22, 3);
+      // const lng = getRandomInRange(86, 89, 3);
+      // randomLat = Math.round((Math.random()*360 - 180) * 1000)/1000;
+      refreshLocationInformation(lat, lng);
     }, error => {
         console.error(error);
     });

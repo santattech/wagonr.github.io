@@ -30,19 +30,11 @@ export function getDistanceforLastXMins(mins, locationPointDataSet) {
 
     // totalDistance is in meter. so converting to KM
     totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
-    // calculate speed
-    var currentSpeed;
-
-    if(mins == 5) {
-      currentSpeed = (totalDistance * 60/5);
-      currentSpeed = currentSpeed.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' km';
-    }
 
     totalDistance = totalDistance.toLocaleString('en-US', { maximumFractionDigits: 3 }) + ' km <span class="extra">('+ filteredLocations.length +' rps)</span>'
     
     if(mins == 5) {
       document.getElementById('five-mins').innerHTML = totalDistance;
-      document.getElementById('current-speed').innerHTML = currentSpeed;
     }
 
     if(mins == 15) {
@@ -52,8 +44,37 @@ export function getDistanceforLastXMins(mins, locationPointDataSet) {
     if(mins == 60) {
       document.getElementById('sixty-mins').innerHTML = totalDistance;
     }
+  }
+}
 
+export function getCurrentSpeed(locationPointDataSet) {
+  let mins = 1/4; //calculate with 15 sec
 
+  if(locationPointDataSet.length > 0) {
+    let totalDistance = 0;
+    let filteredLocations = locationPointDataSet.filter(function(l) {
+      // different in seconds
+      let diff = (Date.now() - Date.parse(l.createdAt))/ 1000;
+      return diff < (mins * 60) 
+    });
+
+    for (let i = 0; i < filteredLocations.length - 1; i++) {
+      const [lat1, lon1] = filteredLocations[i].loc;
+      const [lat2, lon2] = filteredLocations[i + 1].loc;
+
+      const distance = haversineDistance(lat1, lon1, lat2, lon2);
+      totalDistance += distance;
+    }
+
+    // totalDistance is in meter. so converting to KM
+    totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
+    // calculate speed
+    var currentSpeed;
+
+    currentSpeed = (totalDistance * 60 * 4);
+    currentSpeed = currentSpeed.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' km';
+  
+    document.getElementById('current-speed').innerHTML = currentSpeed;
   }
 }
 
