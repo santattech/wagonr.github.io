@@ -30,7 +30,7 @@ export function getDistanceforLastXMins(mins, locationPointDataSet) {
 
     // totalDistance is in meter. so converting to KM
     totalDistance = Math.round(totalDistance * 100) / (100 * 1000)
-
+    // Here RPS means recent points
     totalDistance = totalDistance.toLocaleString('en-US', { maximumFractionDigits: 3 }) + ' km <span class="extra">('+ filteredLocations.length +' rps)</span>'
     
     if(mins == 5) {

@@ -238,3 +238,4 @@ setInterval(() => {
   // Refresh the global array by getting all the locations from DB
   getLocationsFromPouch();
 }, 120000);
+
