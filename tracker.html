@@ -93,8 +93,8 @@
 
 <button class="collapsible">📍 Set Destination</button>
 <div class="content">
-  <label>Latitude: <input type="number" id="lat" step="any" /></label>
-  <label>Longitude: <input type="number" id="lon" step="any" /></label>
+  <label>Latitude: <input type="number" id="lat"  /></label>
+  <label>Longitude: <input type="number" id="lon" /></label>
 </div>
 
 <button class="collapsible">📏 Distance Info</button>
@@ -104,11 +104,15 @@
   <div class="progress-bar-container">
     <div class="progress-bar" id="progress-bar">0%</div>
   </div>
+
+  <button id="go-to-current" style="position: fixed; top: 100px; right: 50px; z-index: 1000;">
+    📍 Go to My Location
+  </button>
 </div>
 <div id="map"></div>
 <div id="tracking-info">
   <h3>Tracking Information</h3>
-  <p>Current Speed: <span id="current-speed">0 km/h</span></p>
+  <p>Current position: <span id="current-position">0 km/h</span></p>
   <p>Distance in last 15 mins: <span id="fifteen-mins">0 km</span></p>
   <p>Distance in last 60 mins: <span id="sixty-mins">0 km</span></p>
   <p>ETA: </p>
