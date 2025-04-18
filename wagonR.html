@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maruti WagonR Dashboard</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-csv@1.0.21/src/jquery.csv.min.js"></script>
+    <script src="mileageChart.js"></script>
+    <script src="milegeperLiter.js"></script>
+    <style>
+    </style>
+</head>
+<body>
+<!-- 
+<h1>Maruti WagonR Dashboard</h1> -->
+
+<!-- Image of Maruti WagonR -->
+<div class='wagonr-img-section'>
+  <img src="assets/wagon-r.png" alt="Maruti WagonR Image" width="98%">
+</div>
+
+<div class="mileage-section">
+    <!-- Quaterly Mileage Line Chart -->
+    <div id="quarterly-mileage">
+        <h3>Distance covered in Quater</h3>
+        <div class="row-quaterly-mileage">
+          <div class="first-column-every-mileage">
+            Based on each quarters from the day of purchase, we have this line graph. The vehicle is not very much 
+            in use, used only when it is highly needed.
+            <a href="/wagonr.github.io/maps.html">Maps</a>
+          </div>
+          <div class="second-column-every-mileage">
+            <canvas id="quaterlymileageChart"></canvas>
+          </div>
+        </div>
+        
+    </div>
+
+    <!-- Mileage Line Chart -->
+    <div id="every-mileage">
+        <h3>Distance covered in details</h3>
+        <div class="row-every-mileage">
+            <div class="first-column-every-mileage">Based on each input from the day of purchase, we have this line graph. This is more a detailed version of the previous graph.</div>
+            <div class="second-column-every-mileage">
+                <canvas id="mileageChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mileage Line Chart -->
+    <div id="fuel-wise-mileage">
+        <h3>Mileage acheived</h3>
+        <div class="row-every-mileage">
+            <div class="first-column-every-mileage">This is actually calculating the KMs covered on an average on the data we have on the refulling of the above vehicle.</div>
+            <div class="second-column-every-mileage">
+                <canvas id="mileageFuelChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Refueling Bar Chart -->
+<div style="clear: both; margin-top: 20px;">
+    <canvas id="monthlyRefuelingChart"></canvas>
+</div>
+
+<script>
+    $.get('vehicle-1-sync.csv', function(data) {
+        var lines = data.split("\n");
+        // for the mileage data for each inputs
+        var odoArr = [];
+        var dataArr = [];
+        var fuelEntryObjects = [];
+
+        $.each(lines, function(index, rowStr) {
+            if(index < 1) {
+                return;
+            }
+
+            var row = rowStr.split(',');
+            dataArr.push(row[0]);
+            odoArr.push(row[1]);
+
+            if(row[0] !== null && row[0] !== undefined && row[0] !== "") {
+              fuelEntryObjects.push({fuel: row[2], odometer: row[1], date: row[0] });
+            }
+        });
+
+        dataArr = filteredArray(dataArr);
+        odoArr = filteredArray(odoArr);
+        const mileageData = odoArr.reverse();
+        var dateLabel = dataArr.reverse();
+        const quaterHashObj = convertToQuarters(dateLabel);
+        const mileageDateLabel = removeDatePart(dateLabel);
+        // for the quarter mileage
+        var quaterDateLabel = [];
+        var quaterOdoDataArr = [];
+
+        $.each(Object.keys(quaterHashObj), function(index, year) {
+            var quaters = quaterHashObj[year];
+
+            $.each(Object.keys(quaters), function(index, quaterNumber) {
+                quaterDateLabel.push(year + ' Q' + quaterNumber);
+                var dateString = quaterHashObj[year][quaterNumber].slice(-1);
+                var indexInt = dateLabel.indexOf(dateString);
+
+                if(dateString.length > 0) {
+                    var indexInt = dateLabel.indexOf(dateString[0]);
+                    quaterOdoDataArr.push(mileageData[indexInt]);
+                }
+            })
+
+            
+        });
+        
+        mileageChartFunc(mileageData, mileageDateLabel, 'KMs covered', 'mileageChart');
+        mileageChartFunc(quaterOdoDataArr, quaterDateLabel, 'KMs covered quarterwise', 'quaterlymileageChart');
+
+        const fuelUsageDataObject = calculateMileageperLiter(fuelEntryObjects.reverse());
+        mileageChartFunc(fuelUsageDataObject.mileagePerLiterData, fuelUsageDataObject.mileagePerLiterLabel, 'KMs covered/per litre', 'mileageFuelChart');
+    });
+
+    // Sample data for demonstration purposes
+    const mileageData = [100, 120, 90, 110, 95, 105];
+    const fuelCostData = [30, 40, 35, 45, 38, 42];
+    const monthlyRefuelingData = [4, 5, 3, 6, 4, 5];
+
+    // Fuel Cost Line Chart
+    var fuelCostCtx = document.getElementById('fuelCostChart').getContext('2d');
+    var fuelCostChart = new Chart(fuelCostCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Fuel Cost',
+                data: fuelCostData,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        }
+    });
+
+    // Monthly Refueling Bar Chart
+    var monthlyRefuelingCtx = document.getElementById('monthlyRefuelingChart').getContext('2d');
+    var monthlyRefuelingChart = new Chart(monthlyRefuelingCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Monthly Refueling',
+                data: monthlyRefuelingData,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
