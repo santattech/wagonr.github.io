@@ -19,38 +19,54 @@
     <script src="https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
   </head>
   <body>
-    <button class="collapsible">📍 Set Destination</button>
-    <div class="content">
-      <label>Latitude: <input type="number" id="lat" /></label>
-      <label>Longitude: <input type="number" id="lon" /></label>
-    </div>
+    <div class="container">
+      <section class="section-card">
+        <button class="collapsible">📍 Set Destination</button>
+        <div class="content">
+          <label>Latitude: <input type="number" id="lat" /></label>
+          <label>Longitude: <input type="number" id="lon" /></label>
+        </div>
+      </section>
 
-    <button class="collapsible">📏 Distance Info</button>
-    <div class="content">
-      <p>Distance from current location to destination:</p>
-      <p id="distance">Calculating...</p>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar">0%</div>
-      </div>
+      <section class="section-card">
+        <button class="collapsible">📏 Distance Info</button>
+        <div class="content">
+          <p>Distance from current location to destination:</p>
+          <p id="distance">Calculating...</p>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar">0%</div>
+          </div>
 
-      <button
-        id="go-to-current"
-        style="position: fixed; top: 100px; right: 50px; z-index: 1000"
-      >
-        📍 Go to My Location
-      </button>
-    </div>
-    <div id="map"></div>
+          <button id="go-to-current" class="floating-button">
+            📍 Go to My Location
+          </button>
+        </div>
+      </section>
 
-    <div id="tracking-info">
-      <h3>Tracking Information</h3>
-      <p>Current position: <span id="current-position">0 km/h</span></p>
-      <p>Distance in last 15 mins: <span id="fifteen-mins">0 km</span></p>
-      <p>Distance in last 60 mins: <span id="sixty-mins">0 km</span></p>
-      <p>
-        Distance in last 24 hours: <span id="fourteen-hundred-mins">0 km</span>
-      </p>
-      <p>ETA:</p>
+      <div id="map" class="map-container"></div>
+
+      <section id="tracking-info">
+        <h3>
+          <i class="fa-solid fa-location-crosshairs"></i> Tracking Information
+        </h3>
+        <p>
+          <span>Current position:</span>
+          <span id="current-position">0 km/h</span>
+        </p>
+        <p>
+          <span>Distance in last 15 mins:</span>
+          <span id="fifteen-mins">0 km</span>
+        </p>
+        <p>
+          <span>Distance in last 60 mins:</span>
+          <span id="sixty-mins">0 km</span>
+        </p>
+        <p>
+          <span>Distance in last 24 hours:</span>
+          <span id="fourteen-hundred-mins">0 km</span>
+        </p>
+        <p><span>ETA:</span> <span id="eta">Calculating...</span></p>
+      </section>
     </div>
     <script type="module" src="tracker.js?v1.1"></script>
   </body>
