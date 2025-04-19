@@ -6,130 +6,68 @@
     <title>Live Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="manifest" href="manifest.json" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="stylesheets/tracker.css?v=1.1" />
     <meta name="theme-color" content="#317EFB" />
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@mapbox/polyline"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
-    <style>
-      body,
-      html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        font-family: sans-serif;
-      }
-
-      #map {
-        height: 70vh;
-      }
-
-      .collapsible {
-        background-color: #333;
-        color: white;
-        cursor: pointer;
-        padding: 10px;
-        text-align: left;
-        width: 100%;
-        border: none;
-        outline: none;
-        font-size: 16px;
-      }
-
-      .active,
-      .collapsible:hover {
-        background-color: #444;
-      }
-
-      .content {
-        padding: 10px;
-        display: none;
-        background-color: #f1f1f1;
-      }
-
-      label,
-      input {
-        display: block;
-        margin-bottom: 10px;
-      }
-
-      .progress-bar-container {
-        width: 100%;
-        background-color: #ddd;
-        border-radius: 4px;
-        margin-top: 10px;
-      }
-
-      .progress-bar {
-        height: 20px;
-        width: 0%;
-        background-color: green;
-        border-radius: 4px;
-        text-align: center;
-        color: white;
-      }
-
-      #tracking-info {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        margin-top: 1rem;
-        border-top: 2px solid #ccc;
-        font-family: Arial, sans-serif;
-        font-size: 1rem;
-        color: #333;
-      }
-
-      #tracking-info h3 {
-        margin-bottom: 1rem;
-        color: #007bff;
-      }
-
-      #tracking-info p {
-        margin: 0.5rem 0;
-        display: flex;
-        justify-content: space-between;
-      }
-
-      #tracking-info span {
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body>
-    <button class="collapsible">📍 Set Destination</button>
-    <div class="content">
-      <label>Latitude: <input type="number" id="lat" /></label>
-      <label>Longitude: <input type="number" id="lon" /></label>
-    </div>
+    <div class="container">
+      <section class="section-card">
+        <button class="collapsible">📍 Set Destination</button>
+        <div class="content">
+          <label>Latitude: <input type="number" id="lat" /></label>
+          <label>Longitude: <input type="number" id="lon" /></label>
+        </div>
+      </section>
 
-    <button class="collapsible">📏 Distance Info</button>
-    <div class="content">
-      <p>Distance from current location to destination:</p>
-      <p id="distance">Calculating...</p>
-      <div class="progress-bar-container">
-        <div class="progress-bar" id="progress-bar">0%</div>
-      </div>
+      <section class="section-card">
+        <button class="collapsible">📏 Distance Info</button>
+        <div class="content">
+          <p>Distance from current location to destination:</p>
+          <p id="distance">Calculating...</p>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar">0%</div>
+          </div>
 
-      <button
-        id="go-to-current"
-        style="position: fixed; top: 100px; right: 50px; z-index: 1000"
-      >
-        📍 Go to My Location
-      </button>
-    </div>
-    <div id="map"></div>
+          <button id="go-to-current" class="floating-button">
+            📍 Go to My Location
+          </button>
+        </div>
+      </section>
 
-    <div id="tracking-info">
-      <h3>Tracking Information</h3>
-      <p>Current position: <span id="current-position">0 km/h</span></p>
-      <p>Distance in last 15 mins: <span id="fifteen-mins">0 km</span></p>
-      <p>Distance in last 60 mins: <span id="sixty-mins">0 km</span></p>
-      <p>
-        Distance in last 24 hours: <span id="fourteen-hundred-mins">0 km</span>
-      </p>
-      <p>ETA:</p>
+      <div id="map" class="map-container"></div>
+
+      <section id="tracking-info">
+        <h3>
+          <i class="fa-solid fa-location-crosshairs"></i> Tracking Information
+        </h3>
+        <p>
+          <span>Current position:</span>
+          <span id="current-position">0 km/h</span>
+        </p>
+        <p>
+          <span>Distance in last 15 mins:</span>
+          <span id="fifteen-mins">0 km</span>
+        </p>
+        <p>
+          <span>Distance in last 60 mins:</span>
+          <span id="sixty-mins">0 km</span>
+        </p>
+        <p>
+          <span>Distance in last 24 hours:</span>
+          <span id="fourteen-hundred-mins">0 km</span>
+        </p>
+        <p><span>ETA:</span> <span id="eta">Calculating...</span></p>
+      </section>
     </div>
-    <script type="module" src="tracker.js"></script>
+    <script type="module" src="tracker.js?v1.1"></script>
   </body>
 </html>

@@ -210,9 +210,9 @@ function updateTrackingInformation() {
 }
 
 // Update every 10s
-setInterval(updateDistance, 15 * 1000);
+setInterval(updateDistance, 20 * 1000);
 // Run cleanup every hour
-setInterval(deleteOldTrackingData, 60 * 1000);
+setInterval(deleteOldTrackingData, 2 * 60 * 1000);
 
 function addLocationToPouch(lat, lng) {
   // Prepare the DB
