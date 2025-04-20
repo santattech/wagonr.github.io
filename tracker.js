@@ -5,6 +5,7 @@ let destination = null;
 let straightLine = null;
 let routeLine = null;
 let initialDistance = null;
+let getRouteCounter = 0;
 let map = L.map("map").setView([0, 0], 13);
 let startMarker, destMarker;
 
@@ -163,8 +164,12 @@ function updateDistance() {
     }
 
     updateTrackingInformation();
+    calculateETA();
 
-    getRoute(start.lat, start.lon, destination.lat, destination.lon);
+    if (getRouteCounter % 5 == 0) {
+      getRoute(start.lat, start.lon, destination.lat, destination.lon);
+    }
+    getRouteCounter++;
   });
 }
 
@@ -172,7 +177,7 @@ function updateProgressBar(remaining, initial) {
   const progress = Math.min(100, ((initial - remaining) / initial) * 100);
   document.getElementById("distance").innerText = `${(remaining / 1000).toFixed(
     2
-  )} km remaining`;
+  )} km remaining out of ${(initial / 1000).toFixed(2)} km`;
 
   const bar = document.getElementById("progress-bar");
   bar.style.width = `${progress.toFixed(1)}%`;
@@ -353,10 +358,6 @@ function formatMinutesToHHMM(mins) {
   const minutes = totalMinutes % 60;
   return `${hours > 0 ? `${hours}h ` : ""}${minutes}m`;
 }
-
-setInterval(() => {
-  calculateETA();
-}, 10000); // every 10 seconds
 
 async function deleteOldTrackingData() {
   const now = Date.now();
