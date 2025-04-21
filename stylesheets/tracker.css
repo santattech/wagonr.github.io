@@ -133,6 +133,12 @@ input[type="number"] {
   margin-bottom: 1rem;
 }
 
+#locationSelect {
+  height: 2.5em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 /* Responsive */
 @media screen and (max-width: 600px) {
   .floating-button {

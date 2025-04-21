@@ -38,6 +38,24 @@ document.querySelectorAll(".collapsible").forEach((btn) => {
   });
 });
 
+// location select dropdown onchange functionality
+const locationSelect = document.getElementById("locationSelect");
+const latInput = document.getElementById("lat");
+const lonInput = document.getElementById("lon");
+
+locationSelect.addEventListener("change", function () {
+  const value = this.value;
+  if (value) {
+    const [lat, lon] = value.split(",");
+    latInput.value = lat;
+    lonInput.value = lon;
+    handleDestinationInput();
+  } else {
+    latInput.value = "";
+    lonInput.value = "";
+  }
+});
+
 // Input listener
 document.querySelectorAll("#lat, #lon").forEach((input) => {
   input.addEventListener("input", handleDestinationInput);
