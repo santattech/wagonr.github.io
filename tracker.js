@@ -184,9 +184,10 @@ function updateDistance() {
     updateTrackingInformation();
     calculateETA();
 
-    if (getRouteCounter % 5 == 0) {
+    if (getRouteCounter % 20 == 0) {
       getRoute(start.lat, start.lon, destination.lat, destination.lon);
     }
+    console.log("getRouteCounter", getRouteCounter);
     getRouteCounter++;
   });
 }
@@ -233,7 +234,7 @@ function updateTrackingInformation() {
 }
 
 // Update every 10s
-setInterval(updateDistance, 20 * 1000);
+setInterval(updateDistance, 5 * 1000);
 // Run cleanup every hour
 setInterval(deleteOldTrackingData, 2 * 60 * 1000);
 
@@ -287,7 +288,8 @@ async function getDistanceFromTrackingHistory(xMins) {
 
     // return distance in meters (or convert to km)
     const totalKm = totalDistance / 1000;
-    const estimatedTotalKm = totalKm * 1.5;
+    const estimatedTotalKm = totalKm * 1.3;
+
     if (xMins == 15)
       document.getElementById(
         "fifteen-mins"
@@ -371,13 +373,23 @@ async function calculateETA() {
 }
 
 function formatMinutesToHHMM(mins) {
-  const totalMinutes = Math.round(mins);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${hours > 0 ? `${hours}h ` : ""}${minutes}m`;
+  const now = new Date();
+  now.setMinutes(now.getMinutes() + mins); // Add the calculated minutes to the current time
+
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  const period = hours >= 12 ? "PM" : "AM";
+  const formattedHours = hours % 12 || 12; // Convert to 12-hour format
+  const formattedMinutes = minutes.toString().padStart(2, "0");
+  const formattedSeconds = seconds.toString().padStart(2, "0");
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${period}`;
 }
 
 async function deleteOldTrackingData() {
+  getSizeOfDB();
   const now = Date.now();
   const cutoff = now - 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
@@ -455,4 +467,15 @@ function getRoute(start_lat, start_lon, destination_lat, destination_lon) {
       routeLine = L.polyline(routeCoords, { color: "blue" }).addTo(map);
       map.fitBounds(routeCoords);
     });
+}
+
+function getSizeOfDB() {
+  if (navigator.storage && navigator.storage.estimate) {
+    navigator.storage.estimate()
+      .then(estimate => {
+        alert('Total storage used (bytes):', estimate.usage);
+        alert('Total storage quota (bytes):', estimate.quota);
+        // console.log('Percentage used:', (estimate.usage / estimate.quota) * 100 + '%');
+      });
+  }
 }
