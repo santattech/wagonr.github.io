@@ -28,10 +28,11 @@
             <select id="locationSelect">
               <option value="">-- Select a location --</option>
               <option value="22.5726,88.3639">Kolkata</option>
-              <option value="22.6118075,88.4270645">United Chess</option>
+              <option value="22.606801,88.410871">Bangur Swimming Pool</option>
+              <option value="22.611793,88.429628">United Chess</option>
               <option value="22.35.15,88.2148">Girish Park</option>
               <option value="22.7049,88.3725">Merlin</option>
-              <option value="22.6095,88.4292">Deep Residency</option>
+              <option value="22.609462,88.431998">Deep Residency</option>
               <option value="22.610161,88.428149">Baguiati</option>
               <option value="21.6720579,87.6579372">Mandarmani</option>
               <option value="21.6234904,87.5005557">Digha</option>
@@ -39,7 +40,7 @@
               <option value="22.6834163,88.3773765">Agarpara</option>
               <option value="22.6094308,88.4376847">Baisakhi Apt</option>
               <option value="22.609591,88.432280">Bihari shop</option>
-              <option value="22.6129109,88.4312136">HDFC ATM</option>
+              <option value="22.613621,88.430637">HDFC ATM</option>
             </select>
           </label>
           <br />
@@ -70,22 +71,23 @@
           <i class="fa-solid fa-location-crosshairs"></i> Tracking Information
         </h3>
         <p>
-          <span>Current position:</span>
+          <label>Current position:</label>
           <span id="current-position">0 km/h</span>
         </p>
+        <p class="distance-in-last">Distance in last</p>
         <p>
-          <span>Distance in last 15 mins:</span>
+          <label>15 mins:</label>
           <span id="fifteen-mins">0 km</span>
         </p>
         <p>
-          <span>Distance in last 60 mins:</span>
+          <label>60 mins:</label>
           <span id="sixty-mins">0 km</span>
         </p>
         <p>
-          <span>Distance in last 24 hours:</span>
+          <label>24 hours:</label>
           <span id="fourteen-hundred-mins">0 km</span>
         </p>
-        <p><span>ETA:</span> <span id="eta">Calculating...</span></p>
+        <p><label>ETA:</label> <span id="eta">Calculating...</span></p>
       </section>
     </div>
     <script type="module" src="tracker.js?v1.1"></script>

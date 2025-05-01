@@ -28,6 +28,25 @@ navigator.geolocation.getCurrentPosition((pos) => {
   checkSavedDestination(); // load destination if saved
 });
 
+// Add a click event listener to the map
+map.on("click", function (e) {
+  const { lat, lng } = e.latlng; // Get latitude and longitude from the event
+  const latLngText = `Latitude: ${lat.toFixed(6)}, Longitude: ${lng.toFixed(6)}`;
+
+  // Show the latitude and longitude in an alert
+  alert(latLngText);
+
+  // Copy the latitude and longitude to the clipboard
+  navigator.clipboard
+    .writeText(lat.toFixed(6))
+    .then(() => {
+      console.log("Latitide copied to clipboard:", lat.toFixed(6));
+    })
+    .catch((err) => {
+      console.error("Failed to copy coordinates to clipboard:", err);
+    });
+});
+
 // Collapsible toggle
 document.querySelectorAll(".collapsible").forEach((btn) => {
   btn.addEventListener("click", function () {
@@ -234,7 +253,7 @@ function updateTrackingInformation() {
 }
 
 // Update every 10s
-setInterval(updateDistance, 5 * 1000);
+setInterval(updateDistance, 50 * 1000);
 // Run cleanup every hour
 setInterval(deleteOldTrackingData, 2 * 60 * 1000);
 
@@ -389,7 +408,7 @@ function formatMinutesToHHMM(mins) {
 }
 
 async function deleteOldTrackingData() {
-  getSizeOfDB();
+  // getSizeOfDB();
   const now = Date.now();
   const cutoff = now - 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
