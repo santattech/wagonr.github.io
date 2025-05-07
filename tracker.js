@@ -372,11 +372,12 @@ async function calculateETA() {
           : "Calculating...";
 
         // Update UI
+        document.querySelector(".floating-speed-div .speed").innerText = `${speedKmPerHr.toFixed(
+          1
+        )} \n kmph`;
         document.querySelector(
           "#tracking-info p:last-child"
-        ).innerText = `ETA: ${etaFormatted} (at ${speedKmPerHr.toFixed(
-          1
-        )} km/h)`;
+        ).innerText = `ETA: ${etaFormatted}`;
 
         resolve(etaFormatted);
       },

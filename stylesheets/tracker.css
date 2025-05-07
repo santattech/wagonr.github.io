@@ -16,7 +16,7 @@ html {
 
 /* Collapsible Section */
 .collapsible {
-  background-color: #343a40;
+  background-color: #1E3A8A;
   color: #fff;
   cursor: pointer;
   padding: 12px 16px;
@@ -37,7 +37,7 @@ html {
 /* Content inside collapsibles */
 .content {
   padding: 16px;
-  background-color: #fff;
+  background-color: ##F0F4F8;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   margin-bottom: 1rem;
@@ -59,7 +59,7 @@ input[type="number"] {
 /* Progress Bar */
 .progress-bar-container {
   width: 100%;
-  background-color: #e0e0e0;
+  background-color: #FCD34D;
   border-radius: 6px;
   overflow: hidden;
   margin-top: 10px;
@@ -94,6 +94,32 @@ input[type="number"] {
   background-color: #0056b3;
 }
 
+.floating-speed-div {
+  position: fixed;
+  top: 300px;
+  right: 20px;
+  background-color: #f7eeef;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.floating-speed-div .speed {
+  font-size: .75rem;
+  text-align: center;
+  color: #333;
+  margin-bottom: 5px;
+  padding: 3px;
+}
+
+.floating-speed-div .label {
+  font-size: .8rem;
+  text-align: center;
+  color: #f9f5f5;
+  background-color: #066e1d;
+  padding: 3px;
+  
+}
+
 /* Map Container */
 #map {
   height: 60vh;
@@ -121,12 +147,31 @@ input[type="number"] {
   display: flex;
   justify-content: space-between;
   padding: 4px 0;
+  margin: 10px 0;
   border-bottom: 1px solid #eee;
   font-size: 0.95rem;
 }
 
+
+#tracking-info label {
+  color: rgb(230, 124, 124);
+  flex: 0 0 auto;
+  font-weight: bold;
+  color: #334155;
+  margin-right: 12px;
+}
+
 #tracking-info span {
+  /* color: rgb(230, 124, 124); */
+  flex: 1;
+  color: #1E3A8A;
   font-weight: 500;
+}
+
+.distance-in-last {
+  color: rgb(230, 124, 124);
+  font-size: 17px !important;
+  font-weight: bold;
 }
 
 .section-card {
