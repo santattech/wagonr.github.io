@@ -260,6 +260,26 @@ input[type="number"] {
   margin-top: 5px;
 }
 
+.auto-trip-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.auto-trip-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.auto-trip-info {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
 /* Trip Controls */
 .trip-btn {
   padding: 10px 20px;

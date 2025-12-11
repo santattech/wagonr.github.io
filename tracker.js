@@ -19,6 +19,13 @@ let watchId = null;
 let gpsUpdateInterval = 5000; // Default 5 seconds
 let autoSaveInterval = null;
 
+// Auto trip detection variables
+let autoTripEnabled = false;
+let lastPosition = null;
+let stationaryTimer = null;
+let movingTimer = null;
+let isMoving = false;
+
 function startLocationTracking() {
   watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
     enableHighAccuracy: true,
@@ -109,11 +116,13 @@ function endTrip() {
 
 function updateTripLocation(pos) {
   const { latitude, longitude, speed, accuracy } = pos.coords;
-  console.log(pos.coords);
   const newPos = { lat: latitude, lon: longitude };
   
   // Update accuracy indicator
   updateAccuracyIndicator(accuracy);
+  
+  // Check for automatic trip detection
+  checkMovement(pos);
   
   // Update current position
   start = newPos;
@@ -127,22 +136,24 @@ function updateTripLocation(pos) {
   const speedKmh = speed ? (speed * 3.6).toFixed(1) : 0;
   document.getElementById("current-speed").textContent = `${speedKmh} kmph`;
   
-  // Add to trip path
-  if (currentTrip && tripPath.length > 0) {
-    const lastPos = tripPath[tripPath.length - 1];
-    const distance = calculateDistance(lastPos.lat, lastPos.lon, latitude, longitude);
-    currentTrip.totalDistance += distance;
-  }
-  
-  tripPath.push(newPos);
-  currentTrip.path = tripPath;
-  
-  // Update trip polyline
-  if (tripPath.length > 1) {
-    if (tripPolyline) {
-      map.removeLayer(tripPolyline);
+  // Add to trip path only if trip is active
+  if (currentTrip) {
+    if (tripPath.length > 0) {
+      const lastPos = tripPath[tripPath.length - 1];
+      const distance = calculateDistance(lastPos.lat, lastPos.lon, latitude, longitude);
+      currentTrip.totalDistance += distance;
     }
-    tripPolyline = L.polyline(tripPath.map(p => [p.lat, p.lon]), {color: 'blue', weight: 4}).addTo(map);
+    
+    tripPath.push(newPos);
+    currentTrip.path = tripPath;
+    
+    // Update trip polyline
+    if (tripPath.length > 1) {
+      if (tripPolyline) {
+        map.removeLayer(tripPolyline);
+      }
+      tripPolyline = L.polyline(tripPath.map(p => [p.lat, p.lon]), {color: 'blue', weight: 4}).addTo(map);
+    }
   }
 }
 
@@ -213,6 +224,50 @@ function autoSaveTripData() {
   }).catch(err => {
     console.error('Auto-save failed:', err);
   });
+}
+
+function checkMovement(pos) {
+  if (!autoTripEnabled) return;
+  
+  const { latitude, longitude, speed } = pos.coords;
+  const currentPos = { lat: latitude, lon: longitude };
+  
+  // Check if moving (speed > 2 km/h or significant position change)
+  let isCurrentlyMoving = false;
+  
+  if (speed && speed > 0.56) { // 0.56 m/s = 2 km/h
+    isCurrentlyMoving = true;
+  } else if (lastPosition) {
+    const distance = calculateDistance(lastPosition.lat, lastPosition.lon, latitude, longitude);
+    if (distance > 0.01) { // 10 meters
+      isCurrentlyMoving = true;
+    }
+  }
+  
+  if (isCurrentlyMoving && !isMoving) {
+    // Started moving
+    clearTimeout(stationaryTimer);
+    movingTimer = setTimeout(() => {
+      if (!currentTrip && autoTripEnabled) {
+        startTrip();
+        console.log('Auto-started trip: movement detected');
+      }
+      isMoving = true;
+    }, 10000); // Start trip after 10 seconds of movement
+    
+  } else if (!isCurrentlyMoving && isMoving) {
+    // Stopped moving
+    clearTimeout(movingTimer);
+    stationaryTimer = setTimeout(() => {
+      if (currentTrip && autoTripEnabled) {
+        endTrip();
+        console.log('Auto-ended trip: stationary detected');
+      }
+      isMoving = false;
+    }, 120000); // End trip after 2 minutes of being stationary
+  }
+  
+  lastPosition = currentPos;
 }
 
 // Clean up backup data when trip ends successfully
@@ -745,3 +800,23 @@ document.getElementById("gps-interval").addEventListener("change", function(e) {
     startLocationTracking();
   }
 });
+
+// Auto trip detection toggle
+const autoTripCheckbox = document.getElementById("auto-trip-detection");
+if (autoTripCheckbox) {
+  autoTripCheckbox.addEventListener("change", function(e) {
+    autoTripEnabled = e.target.checked;
+    
+    if (autoTripEnabled) {
+      // Start continuous location tracking for auto detection
+      if (!watchId) {
+        startLocationTracking();
+      }
+    } else {
+      // Clear timers when disabled
+      clearTimeout(stationaryTimer);
+      clearTimeout(movingTimer);
+      isMoving = false;
+    }
+  });
+}
