@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Replay - GPS Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="stylesheets/tracker.css?v=1.1">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎬 Trip Replay</h1>
+            <a href="trips.html" class="back-btn">← Back to Trips</a>
+        </header>
+        
+        <div class="replay-controls">
+            <button id="play-btn" class="control-btn">▶️ Play</button>
+            <button id="pause-btn" class="control-btn" disabled>⏸️ Pause</button>
+            <button id="reset-btn" class="control-btn">🔄 Reset</button>
+            <div class="speed-control">
+                <label>Speed: 
+                    <select id="replay-speed">
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1x</option>
+                        <option value="2">2x</option>
+                        <option value="5">5x</option>
+                        <option value="10">10x</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        
+        <div class="trip-info">
+            <h3 id="trip-title">Loading trip...</h3>
+            <div class="progress-info">
+                <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="replay-progress">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="replay-map" class="map-container"></div>
+    </div>
+
+    <script>
+        const dbTrips = new PouchDB("tripsDB");
+        let currentTrip = null;
+        let replayMap = null;
+        let pathPolyline = null;
+        let currentMarker = null;
+        let replayInterval = null;
+        let currentIndex = 0;
+        let replaySpeed = 1;
+        
+        // Get trip ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tripId = urlParams.get('id');
+        
+        // Initialize map
+        replayMap = L.map('replay-map').setView([0, 0], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(replayMap);
+        
+        // Load trip data
+        async function loadTrip() {
+            try {
+                currentTrip = await dbTrips.get(tripId);
+                displayTripInfo();
+                setupMap();
+            } catch (error) {
+                document.getElementById('trip-title').textContent = 'Trip not found';
+            }
+        }
+        
+        function displayTripInfo() {
+            const startTime = new Date(currentTrip.startTime);
+            document.getElementById('trip-title').textContent = 
+                `Trip ${startTime.toLocaleDateString()} ${startTime.toLocaleTimeString()}`;
+            
+            const duration = Math.floor(currentTrip.duration);
+            const minutes = Math.floor(duration / 60);
+            const seconds = duration % 60;
+            document.getElementById('total-time').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function setupMap() {
+            if (!currentTrip.path || currentTrip.path.length === 0) return;
+            
+            // Draw complete path
+            const pathCoords = currentTrip.path.map(p => [p.lat, p.lon]);
+            pathPolyline = L.polyline(pathCoords, {color: 'blue', weight: 3, opacity: 0.5}).addTo(replayMap);
+            
+            // Fit map to path
+            replayMap.fitBounds(pathPolyline.getBounds());
+            
+            // Add start marker
+            L.marker([currentTrip.path[0].lat, currentTrip.path[0].lon])
+                .bindPopup('Start')
+                .addTo(replayMap);
+            
+            // Add end marker
+            const lastPoint = currentTrip.path[currentTrip.path.length - 1];
+            L.marker([lastPoint.lat, lastPoint.lon])
+                .bindPopup('End')
+                .addTo(replayMap);
+            
+            // Add current position marker
+            currentMarker = L.marker([currentTrip.path[0].lat, currentTrip.path[0].lon], {
+                icon: L.icon({
+                    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzI4YTc0NSIvPgo8L3N2Zz4K',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            }).addTo(replayMap);
+        }
+        
+        function startReplay() {
+            if (!currentTrip.path || replayInterval) return;
+            
+            document.getElementById('play-btn').disabled = true;
+            document.getElementById('pause-btn').disabled = false;
+            
+            const intervalMs = 1000 / replaySpeed;
+            replayInterval = setInterval(updateReplay, intervalMs);
+        }
+        
+        function pauseReplay() {
+            if (replayInterval) {
+                clearInterval(replayInterval);
+                replayInterval = null;
+            }
+            
+            document.getElementById('play-btn').disabled = false;
+            document.getElementById('pause-btn').disabled = true;
+        }
+        
+        function resetReplay() {
+            pauseReplay();
+            currentIndex = 0;
+            updateReplay();
+        }
+        
+        function updateReplay() {
+            if (!currentTrip.path || currentIndex >= currentTrip.path.length) {
+                pauseReplay();
+                return;
+            }
+            
+            const point = currentTrip.path[currentIndex];
+            currentMarker.setLatLng([point.lat, point.lon]);
+            
+            // Update progress
+            const progress = (currentIndex / (currentTrip.path.length - 1)) * 100;
+            document.getElementById('replay-progress').style.width = progress + '%';
+            
+            // Update time
+            const elapsed = Math.floor((currentIndex / currentTrip.path.length) * currentTrip.duration);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('current-time').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            currentIndex++;
+        }
+        
+        // Event listeners
+        document.getElementById('play-btn').addEventListener('click', startReplay);
+        document.getElementById('pause-btn').addEventListener('click', pauseReplay);
+        document.getElementById('reset-btn').addEventListener('click', resetReplay);
+        
+        document.getElementById('replay-speed').addEventListener('change', function(e) {
+            replaySpeed = parseFloat(e.target.value);
+            if (replayInterval) {
+                pauseReplay();
+                startReplay();
+            }
+        });
+        
+        // Load trip on page load
+        if (tripId) {
+            loadTrip();
+        } else {
+            document.getElementById('trip-title').textContent = 'No trip selected';
+        }
+    </script>
+</body>
+</html>

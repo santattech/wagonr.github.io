@@ -41,12 +41,12 @@
             }
             
             const tripsHtml = trips.map(trip => `
-                <div class="trip-card" data-trip-id="${trip._id}">
+                <div class="trip-card clickable-trip" data-trip-id="${trip._id}" onclick="openTripReplay('${trip._id}')">
                     <div class="trip-header">
                         <h3>Trip ${new Date(trip.startTime).toLocaleDateString()}</h3>
                         <div class="trip-actions">
                             <span class="trip-time">${new Date(trip.startTime).toLocaleTimeString()}</span>
-                            <button class="delete-btn" onclick="deleteTrip('${trip._id}')">🗑️</button>
+                            <button class="delete-btn" onclick="event.stopPropagation(); deleteTrip('${trip._id}')">🗑️</button>
                         </div>
                     </div>
                     <div class="trip-details">
@@ -62,6 +62,9 @@
                             <span class="label">Avg Speed:</span>
                             <span class="value">${trip.avgSpeed.toFixed(1)} km/h</span>
                         </div>
+                    </div>
+                    <div class="trip-footer">
+                        <span class="replay-hint">🎬 Click to replay trip</span>
                     </div>
                 </div>
             `).join('');
@@ -102,6 +105,10 @@
             } catch (error) {
                 alert('Error deleting trip: ' + error.message);
             }
+        }
+        
+        function openTripReplay(tripId) {
+            window.location.href = `trip-replay.html?id=${tripId}`;
         }
         
         loadTrips();

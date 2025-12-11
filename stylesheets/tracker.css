@@ -338,6 +338,83 @@ input[type="number"] {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.clickable-trip {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.clickable-trip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.trip-footer {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.replay-hint {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Replay Controls */
+.replay-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.control-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.control-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.speed-control {
+  margin-left: auto;
+}
+
+.speed-control select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.trip-info {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+#replay-map {
+  height: 400px;
+}
+
 .trip-header {
   display: flex;
   justify-content: space-between;
