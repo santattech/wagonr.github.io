@@ -35,6 +35,16 @@
         
         <div class="trip-info">
             <h3 id="trip-title">Loading trip...</h3>
+            <div class="replay-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Current Speed:</span>
+                    <span id="current-replay-speed" class="stat-value">0 km/h</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Distance:</span>
+                    <span id="current-distance" class="stat-value">0.0 km</span>
+                </div>
+            </div>
             <div class="progress-info">
                 <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
                 <div class="progress-bar-container">
@@ -153,6 +163,22 @@
             const point = currentTrip.path[currentIndex];
             currentMarker.setLatLng([point.lat, point.lon]);
             
+            // Calculate speed between points
+            let speed = 0;
+            if (currentIndex > 0) {
+                const prevPoint = currentTrip.path[currentIndex - 1];
+                const distance = calculateDistance(prevPoint.lat, prevPoint.lon, point.lat, point.lon);
+                const timeInterval = 1; // Assuming 1 second between points
+                speed = (distance / timeInterval) * 3600; // Convert to km/h
+            }
+            
+            // Update speed display
+            document.getElementById('current-replay-speed').textContent = speed.toFixed(1) + ' km/h';
+            
+            // Update distance
+            const totalDistance = (currentIndex / currentTrip.path.length) * currentTrip.totalDistance;
+            document.getElementById('current-distance').textContent = totalDistance.toFixed(2) + ' km';
+            
             // Update progress
             const progress = (currentIndex / (currentTrip.path.length - 1)) * 100;
             document.getElementById('replay-progress').style.width = progress + '%';
@@ -165,6 +191,18 @@
                 `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
             currentIndex++;
+        }
+        
+        // Calculate distance between two points
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
         
         // Event listeners
