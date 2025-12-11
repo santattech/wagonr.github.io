@@ -51,6 +51,21 @@
       </section>
 
       <section class="section-card">
+        <button class="collapsible">🔋 Battery Settings</button>
+        <div class="content">
+          <label>GPS Update Interval:
+            <select id="gps-interval">
+              <option value="1000">High Accuracy (1s)</option>
+              <option value="5000" selected>Balanced (5s)</option>
+              <option value="10000">Battery Saver (10s)</option>
+              <option value="30000">Ultra Saver (30s)</option>
+            </select>
+          </label>
+          <p class="battery-info">Current: <span id="current-interval">5s</span></p>
+        </div>
+      </section>
+
+      <section class="section-card">
         <button class="collapsible">🚗 Trip Controls</button>
         <div class="content">
           <button id="start-trip" class="trip-btn start-btn">Start Trip</button>

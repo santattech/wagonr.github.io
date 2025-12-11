@@ -16,6 +16,15 @@ let currentTrip = null;
 let tripPath = [];
 let tripPolyline = null;
 let watchId = null;
+let gpsUpdateInterval = 5000; // Default 5 seconds
+
+function startLocationTracking() {
+  watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
+    enableHighAccuracy: true,
+    maximumAge: gpsUpdateInterval,
+    timeout: gpsUpdateInterval + 2000
+  });
+}
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -47,12 +56,8 @@ function startTrip() {
   document.getElementById("end-trip").disabled = false;
   document.getElementById("trip-status").innerHTML = "🟢 Trip Active";
   
-  // Start watching position for live tracking
-  watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
-    enableHighAccuracy: true,
-    maximumAge: 1000,
-    timeout: 5000
-  });
+  // Start tracking with configurable interval
+  startLocationTracking();
 }
 
 function endTrip() {
@@ -622,3 +627,19 @@ function getSizeOfDB() {
       });
   }
 }
+
+// Initialize event listeners
+document.getElementById("start-trip").addEventListener("click", startTrip);
+document.getElementById("end-trip").addEventListener("click", endTrip);
+
+// Battery optimization settings
+document.getElementById("gps-interval").addEventListener("change", function(e) {
+  gpsUpdateInterval = parseInt(e.target.value);
+  document.getElementById("current-interval").textContent = (gpsUpdateInterval / 1000) + "s";
+  
+  // Restart tracking with new interval if trip is active
+  if (currentTrip && watchId) {
+    navigator.geolocation.clearWatch(watchId);
+    startLocationTracking();
+  }
+});

@@ -200,6 +200,20 @@ input[type="number"] {
     font-size: 16px;
   }
 }
+/* Battery Settings */
+.battery-info {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #666;
+}
+
+#gps-interval {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
 /* Trip Controls */
 .trip-btn {
   padding: 10px 20px;
