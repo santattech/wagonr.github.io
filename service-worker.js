@@ -28,3 +28,52 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+// Background sync for location tracking
+self.addEventListener('sync', event => {
+  if (event.tag === 'background-location-sync') {
+    event.waitUntil(handleBackgroundLocationSync());
+  }
+});
+
+// Handle messages from main thread
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'START_BACKGROUND_TRACKING') {
+    startBackgroundTracking();
+  } else if (event.data && event.data.type === 'STOP_BACKGROUND_TRACKING') {
+    stopBackgroundTracking();
+  }
+});
+
+let backgroundTrackingInterval;
+
+function startBackgroundTracking() {
+  // Register for background sync
+  self.registration.sync.register('background-location-sync');
+  
+  // Set up periodic tracking (limited by browser)
+  backgroundTrackingInterval = setInterval(() => {
+    self.registration.sync.register('background-location-sync');
+  }, 30000); // Every 30 seconds
+}
+
+function stopBackgroundTracking() {
+  if (backgroundTrackingInterval) {
+    clearInterval(backgroundTrackingInterval);
+    backgroundTrackingInterval = null;
+  }
+}
+
+async function handleBackgroundLocationSync() {
+  try {
+    // Notify main thread to handle location update
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'BACKGROUND_SYNC_TRIGGER'
+      });
+    });
+  } catch (error) {
+    console.error('Background sync failed:', error);
+  }
+}

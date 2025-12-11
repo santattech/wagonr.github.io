@@ -26,6 +26,10 @@ let stationaryTimer = null;
 let movingTimer = null;
 let isMoving = false;
 
+// Background tracking variables
+let wakeLock = null;
+let backgroundTrackingEnabled = false;
+
 function startLocationTracking() {
   watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
     enableHighAccuracy: true,
@@ -71,6 +75,11 @@ function startTrip() {
   
   // Start auto-save every 2 minutes
   autoSaveInterval = setInterval(autoSaveTripData, 120000);
+
+  // Enable background tracking if enabled
+  if (backgroundTrackingEnabled) {
+    enableBackgroundTracking();
+  }
 }
 
 function endTrip() {
@@ -82,6 +91,11 @@ function endTrip() {
   if (autoSaveInterval) {
     clearInterval(autoSaveInterval);
     autoSaveInterval = null;
+  }
+
+  // Disable background tracking
+  if (backgroundTrackingEnabled) {
+    disableBackgroundTracking();
   }
   
   currentTrip.endTime = new Date();
@@ -223,6 +237,76 @@ function autoSaveTripData() {
     }
   }).catch(err => {
     console.error('Auto-save failed:', err);
+  });
+}
+
+// Background tracking functions
+async function enableBackgroundTracking() {
+  try {
+    // Request wake lock to keep screen tracking active
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Wake lock acquired');
+    }
+    
+    // Start service worker background sync
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      const registration = await navigator.serviceWorker.ready;
+      registration.active.postMessage({
+        type: 'START_BACKGROUND_TRACKING'
+      });
+    }
+    
+    backgroundTrackingEnabled = true;
+    
+    // Listen for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+  } catch (error) {
+    console.error('Failed to enable background tracking:', error);
+  }
+}
+
+function disableBackgroundTracking() {
+  // Release wake lock
+  if (wakeLock) {
+    wakeLock.release();
+    wakeLock = null;
+    console.log('Wake lock released');
+  }
+  
+  // Stop service worker background sync
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.active.postMessage({
+        type: 'STOP_BACKGROUND_TRACKING'
+      });
+    });
+  }
+  
+  backgroundTrackingEnabled = false;
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+}
+
+function handleVisibilityChange() {
+  if (document.hidden && backgroundTrackingEnabled && currentTrip) {
+    // Page is hidden, ensure background tracking continues
+    console.log('Page hidden, maintaining background tracking');
+  } else if (!document.hidden && backgroundTrackingEnabled) {
+    // Page is visible again
+    console.log('Page visible, resuming foreground tracking');
+  }
+}
+
+// Listen for service worker messages
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data && event.data.type === 'BACKGROUND_SYNC_TRIGGER') {
+      // Handle background location update
+      if (currentTrip && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(updateTripLocation);
+      }
+    }
   });
 }
 
