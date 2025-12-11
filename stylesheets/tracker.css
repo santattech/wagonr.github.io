@@ -200,3 +200,108 @@ input[type="number"] {
     font-size: 16px;
   }
 }
+/* Trip Controls */
+.trip-btn {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.start-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.end-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.list-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.trip-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.trip-status {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Trips Page */
+.trips-container {
+  margin-top: 20px;
+}
+
+.trip-card {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.trip-header h3 {
+  margin: 0;
+  color: #1E3A8A;
+}
+
+.trip-time {
+  color: #666;
+  font-size: 14px;
+}
+
+.trip-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.trip-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.trip-stat .label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.trip-stat .value {
+  font-weight: bold;
+  color: #333;
+}
+
+.back-btn {
+  background-color: #6c757d;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.no-trips {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}

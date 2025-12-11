@@ -1,14 +1,21 @@
 const db = new PouchDB("destinationDB");
 const dbTracking = new PouchDB("trackingDB");
+const dbTrips = new PouchDB("tripsDB");
 let start = null;
 let destination = null;
 let straightLine = null;
 let routeLine = null;
 let initialDistance = 513;
 let getRouteCounter = 0;
-let adjustmentFactor = 1.24; // Adjusted for route distance estimation compared to aerial distance
+let adjustmentFactor = 1.24;
 let map = L.map("map").setView([0, 0], 13);
 let startMarker, destMarker;
+
+// Trip management variables
+let currentTrip = null;
+let tripPath = [];
+let tripPolyline = null;
+let watchId = null;
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -19,6 +26,119 @@ if ("serviceWorker" in navigator) {
 
 // Leaflet Tile
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+// Trip Controls
+document.getElementById("start-trip").addEventListener("click", startTrip);
+document.getElementById("end-trip").addEventListener("click", endTrip);
+
+function startTrip() {
+  if (currentTrip) return;
+  
+  currentTrip = {
+    id: Date.now(),
+    startTime: new Date(),
+    startLocation: start,
+    path: [],
+    totalDistance: 0
+  };
+  
+  tripPath = [];
+  document.getElementById("start-trip").disabled = true;
+  document.getElementById("end-trip").disabled = false;
+  document.getElementById("trip-status").innerHTML = "🟢 Trip Active";
+  
+  // Start watching position for live tracking
+  watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
+    enableHighAccuracy: true,
+    maximumAge: 1000,
+    timeout: 5000
+  });
+}
+
+function endTrip() {
+  if (!currentTrip) return;
+  
+  navigator.geolocation.clearWatch(watchId);
+  
+  currentTrip.endTime = new Date();
+  currentTrip.endLocation = start;
+  currentTrip.duration = (currentTrip.endTime - currentTrip.startTime) / 1000 / 60; // minutes
+  currentTrip.avgSpeed = currentTrip.totalDistance / (currentTrip.duration / 60); // km/h
+  
+  // Save trip to database
+  dbTrips.put(currentTrip);
+  
+  // Show trip summary
+  showTripSummary(currentTrip);
+  
+  // Reset trip state
+  currentTrip = null;
+  tripPath = [];
+  if (tripPolyline) {
+    map.removeLayer(tripPolyline);
+    tripPolyline = null;
+  }
+  
+  document.getElementById("start-trip").disabled = false;
+  document.getElementById("end-trip").disabled = true;
+  document.getElementById("trip-status").innerHTML = "";
+}
+
+function updateTripLocation(pos) {
+  const { latitude, longitude, speed } = pos.coords;
+  const newPos = { lat: latitude, lon: longitude };
+  
+  // Update current position
+  start = newPos;
+  map.setView([latitude, longitude], map.getZoom());
+  
+  if (startMarker) {
+    startMarker.setLatLng([latitude, longitude]);
+  }
+  
+  // Update speed display
+  const speedKmh = speed ? (speed * 3.6).toFixed(1) : 0;
+  document.getElementById("current-speed").textContent = `${speedKmh} kmph`;
+  
+  // Add to trip path
+  if (currentTrip && tripPath.length > 0) {
+    const lastPos = tripPath[tripPath.length - 1];
+    const distance = calculateDistance(lastPos.lat, lastPos.lon, latitude, longitude);
+    currentTrip.totalDistance += distance;
+  }
+  
+  tripPath.push(newPos);
+  currentTrip.path = tripPath;
+  
+  // Update trip polyline
+  if (tripPath.length > 1) {
+    if (tripPolyline) {
+      map.removeLayer(tripPolyline);
+    }
+    tripPolyline = L.polyline(tripPath.map(p => [p.lat, p.lon]), {color: 'blue', weight: 4}).addTo(map);
+  }
+}
+
+function showTripSummary(trip) {
+  const summary = `
+    Trip Summary:
+    Duration: ${trip.duration.toFixed(1)} minutes
+    Distance: ${trip.totalDistance.toFixed(2)} km
+    Average Speed: ${trip.avgSpeed.toFixed(1)} km/h
+  `;
+  alert(summary);
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
 
 // Get current location
 navigator.geolocation.getCurrentPosition((pos) => {

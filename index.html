@@ -51,6 +51,16 @@
       </section>
 
       <section class="section-card">
+        <button class="collapsible">🚗 Trip Controls</button>
+        <div class="content">
+          <button id="start-trip" class="trip-btn start-btn">Start Trip</button>
+          <button id="end-trip" class="trip-btn end-btn" disabled>End Trip</button>
+          <a href="trips.html" class="trip-btn list-btn">View Trips</a>
+          <div id="trip-status" class="trip-status"></div>
+        </div>
+      </section>
+
+      <section class="section-card">
         <button class="collapsible">📏 Distance Info</button>
         <div class="content">
           <p>Distance from current location to destination:</p>
@@ -60,9 +70,9 @@
           </div>
 
           <div class="floating-speed-div">
-            <div class="speed">20 kmph</div>
+            <div class="speed" id="current-speed">0 kmph</div>
             <div class="label">speed</div>
-          </button>
+          </div>
           <button id="go-to-current" class="floating-button">
             📍 Go to My Location
           </button>

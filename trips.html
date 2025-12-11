@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip History - GPS Tracker</title>
+    <link rel="stylesheet" href="stylesheets/tracker.css?v=1.1">
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@9.0.0/dist/pouchdb.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 Trip History</h1>
+            <a href="index.html" class="back-btn">← Back to Tracker</a>
+        </header>
+        
+        <div id="trips-list" class="trips-container">
+            <p id="loading">Loading trips...</p>
+        </div>
+    </div>
+
+    <script>
+        const dbTrips = new PouchDB("tripsDB");
+        
+        async function loadTrips() {
+            try {
+                const result = await dbTrips.allDocs({include_docs: true});
+                const trips = result.rows.map(row => row.doc).sort((a, b) => b.startTime - a.startTime);
+                displayTrips(trips);
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Error loading trips';
+            }
+        }
+        
+        function displayTrips(trips) {
+            const container = document.getElementById('trips-list');
+            
+            if (trips.length === 0) {
+                container.innerHTML = '<p class="no-trips">No trips recorded yet</p>';
+                return;
+            }
+            
+            const tripsHtml = trips.map(trip => `
+                <div class="trip-card">
+                    <div class="trip-header">
+                        <h3>Trip ${new Date(trip.startTime).toLocaleDateString()}</h3>
+                        <span class="trip-time">${new Date(trip.startTime).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="trip-details">
+                        <div class="trip-stat">
+                            <span class="label">Duration:</span>
+                            <span class="value">${trip.duration.toFixed(1)} min</span>
+                        </div>
+                        <div class="trip-stat">
+                            <span class="label">Distance:</span>
+                            <span class="value">${trip.totalDistance.toFixed(2)} km</span>
+                        </div>
+                        <div class="trip-stat">
+                            <span class="label">Avg Speed:</span>
+                            <span class="value">${trip.avgSpeed.toFixed(1)} km/h</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = tripsHtml;
+        }
+        
+        loadTrips();
+    </script>
+</body>
+</html>
