@@ -90,8 +90,12 @@ function endTrip() {
 }
 
 function updateTripLocation(pos) {
-  const { latitude, longitude, speed } = pos.coords;
+  const { latitude, longitude, speed, accuracy } = pos.coords;
+  console.log(pos.coords);
   const newPos = { lat: latitude, lon: longitude };
+  
+  // Update accuracy indicator
+  updateAccuracyIndicator(accuracy);
   
   // Update current position
   start = newPos;
@@ -124,6 +128,47 @@ function updateTripLocation(pos) {
   }
 }
 
+function updateAccuracyIndicator(accuracy) {
+  const accuracyValue = document.getElementById("accuracy-value");
+  const accuracyText = document.getElementById("accuracy-text");
+  const bars = document.querySelectorAll(".bar");
+  
+  // Check if elements exist
+  if (!accuracyValue || !accuracyText || bars.length === 0) return;
+  
+  accuracyValue.textContent = `${accuracy.toFixed(1)} meters`;
+  // Reset all bars
+  bars.forEach(bar => bar.classList.remove("active"));
+  
+  // Update signal strength based on accuracy
+  let signalStrength = 0;
+  let signalText = "";
+  
+  if (accuracy <= 5) {
+    signalStrength = 4;
+    signalText = "Excellent";
+  } else if (accuracy <= 10) {
+    signalStrength = 3;
+    signalText = "Good";
+  } else if (accuracy <= 20) {
+    signalStrength = 2;
+    signalText = "Fair";
+  } else if (accuracy <= 50) {
+    signalStrength = 1;
+    signalText = "Poor";
+  } else {
+    signalStrength = 0;
+    signalText = "Very Poor";
+  }
+  
+  // Activate bars based on signal strength
+  for (let i = 0; i < signalStrength; i++) {
+    bars[i].classList.add("active");
+  }
+  
+  accuracyText.textContent = signalText;
+}
+
 function showTripSummary(trip) {
   const summary = `
     Trip Summary:
@@ -147,10 +192,11 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 // Get current location
 navigator.geolocation.getCurrentPosition((pos) => {
-  const { latitude, longitude } = pos.coords;
+  const { latitude, longitude, accuracy } = pos.coords;
   start = { lat: latitude, lon: longitude };
   map.setView([latitude, longitude], 15);
   startMarker = L.marker([latitude, longitude], { title: "Start" }).addTo(map);
+  updateAccuracyIndicator(accuracy);
   checkSavedDestination(); // load destination if saved
 });
 

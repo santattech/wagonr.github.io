@@ -51,6 +51,23 @@
       </section>
 
       <section class="section-card">
+        <button class="collapsible">📡 GPS Signal</button>
+        <div class="content">
+          <div class="accuracy-indicator">
+            <span class="signal-label">Signal Strength:</span>
+            <div class="signal-bars">
+              <div class="bar" id="bar1"></div>
+              <div class="bar" id="bar2"></div>
+              <div class="bar" id="bar3"></div>
+              <div class="bar" id="bar4"></div>
+            </div>
+            <span id="accuracy-text">Searching...</span>
+          </div>
+          <p class="accuracy-info">Accuracy: <span id="accuracy-value">-- meters</span></p>
+        </div>
+      </section>
+
+      <section class="section-card">
         <button class="collapsible">🔋 Battery Settings</button>
         <div class="content">
           <label>GPS Update Interval:
