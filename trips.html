@@ -41,10 +41,13 @@
             }
             
             const tripsHtml = trips.map(trip => `
-                <div class="trip-card">
+                <div class="trip-card" data-trip-id="${trip._id}">
                     <div class="trip-header">
                         <h3>Trip ${new Date(trip.startTime).toLocaleDateString()}</h3>
-                        <span class="trip-time">${new Date(trip.startTime).toLocaleTimeString()}</span>
+                        <div class="trip-actions">
+                            <span class="trip-time">${new Date(trip.startTime).toLocaleTimeString()}</span>
+                            <button class="delete-btn" onclick="deleteTrip('${trip._id}')">🗑️</button>
+                        </div>
                     </div>
                     <div class="trip-details">
                         <div class="trip-stat">
@@ -64,6 +67,41 @@
             `).join('');
             
             container.innerHTML = tripsHtml;
+        }
+        
+        async function deleteTrip(tripId) {
+            if (!confirm('Are you sure you want to delete this trip?')) {
+                return;
+            }
+            
+            try {
+                // Delete main trip
+                const trip = await dbTrips.get(tripId);
+                await dbTrips.remove(trip);
+                
+                // Delete backup if exists
+                try {
+                    const backup = await dbTrips.get(tripId + '_backup');
+                    await dbTrips.remove(backup);
+                } catch (err) {
+                    // Backup doesn't exist, which is fine
+                }
+                
+                // Remove from UI
+                const tripCard = document.querySelector(`[data-trip-id="${tripId}"]`);
+                if (tripCard) {
+                    tripCard.remove();
+                }
+                
+                // Check if no trips left
+                const remainingCards = document.querySelectorAll('.trip-card');
+                if (remainingCards.length === 0) {
+                    document.getElementById('trips-list').innerHTML = '<p class="no-trips">No trips recorded yet</p>';
+                }
+                
+            } catch (error) {
+                alert('Error deleting trip: ' + error.message);
+            }
         }
         
         loadTrips();

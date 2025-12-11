@@ -350,9 +350,29 @@ input[type="number"] {
   color: #1E3A8A;
 }
 
+.trip-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .trip-time {
   color: #666;
   font-size: 14px;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.delete-btn:hover {
+  background: #c82333;
 }
 
 .trip-details {
