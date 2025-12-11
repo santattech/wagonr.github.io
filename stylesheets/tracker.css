@@ -298,6 +298,13 @@ input[type="number"] {
   font-weight: bold;
 }
 
+.auto-save-status {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #28a745;
+  font-style: italic;
+}
+
 /* Trips Page */
 .trips-container {
   margin-top: 20px;

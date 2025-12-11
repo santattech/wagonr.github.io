@@ -17,6 +17,7 @@ let tripPath = [];
 let tripPolyline = null;
 let watchId = null;
 let gpsUpdateInterval = 5000; // Default 5 seconds
+let autoSaveInterval = null;
 
 function startLocationTracking() {
   watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
@@ -43,8 +44,10 @@ document.getElementById("end-trip").addEventListener("click", endTrip);
 function startTrip() {
   if (currentTrip) return;
   
+  const tripId = Date.now().toString();
   currentTrip = {
-    id: Date.now(),
+    _id: tripId,
+    id: tripId,
     startTime: new Date(),
     startLocation: start,
     path: [],
@@ -58,6 +61,9 @@ function startTrip() {
   
   // Start tracking with configurable interval
   startLocationTracking();
+  
+  // Start auto-save every 2 minutes
+  autoSaveInterval = setInterval(autoSaveTripData, 120000);
 }
 
 function endTrip() {
@@ -65,13 +71,25 @@ function endTrip() {
   
   navigator.geolocation.clearWatch(watchId);
   
+  // Clear auto-save interval
+  if (autoSaveInterval) {
+    clearInterval(autoSaveInterval);
+    autoSaveInterval = null;
+  }
+  
   currentTrip.endTime = new Date();
   currentTrip.endLocation = start;
   currentTrip.duration = (currentTrip.endTime - currentTrip.startTime) / 1000 / 60; // minutes
   currentTrip.avgSpeed = currentTrip.totalDistance / (currentTrip.duration / 60); // km/h
   
-  // Save trip to database
-  dbTrips.put(currentTrip);
+  // Store trip ID before clearing currentTrip
+  const tripId = currentTrip.id;
+  
+  // Save final trip to database
+  dbTrips.put(currentTrip).then(() => {
+    // Clean up backup data after successful save
+    cleanupTripBackup(tripId);
+  });
   
   // Show trip summary
   showTripSummary(currentTrip);
@@ -167,6 +185,44 @@ function updateAccuracyIndicator(accuracy) {
   }
   
   accuracyText.textContent = signalText;
+}
+
+function autoSaveTripData() {
+  if (!currentTrip) return;
+  
+  // Create a backup copy of current trip data
+  const backupId = currentTrip.id + '_backup';
+  const tripBackup = {
+    ...currentTrip,
+    _id: backupId,
+    id: backupId,
+    path: [...tripPath],
+    lastSaved: new Date(),
+    isBackup: true
+  };
+  
+  // Save backup to database
+  dbTrips.put(tripBackup).then(() => {
+    const statusEl = document.getElementById("auto-save-status");
+    if (statusEl) {
+      statusEl.innerHTML = "💾 Auto-saved at " + new Date().toLocaleTimeString();
+      setTimeout(() => {
+        if (statusEl) statusEl.innerHTML = "";
+      }, 3000);
+    }
+  }).catch(err => {
+    console.error('Auto-save failed:', err);
+  });
+}
+
+// Clean up backup data when trip ends successfully
+function cleanupTripBackup(tripId) {
+  const backupId = tripId + '_backup';
+  dbTrips.get(backupId).then(doc => {
+    return dbTrips.remove(doc);
+  }).catch(err => {
+    // Backup doesn't exist, which is fine
+  });
 }
 
 function showTripSummary(trip) {
