@@ -4,8 +4,9 @@ let start = null;
 let destination = null;
 let straightLine = null;
 let routeLine = null;
-let initialDistance = null;
+let initialDistance = 513;
 let getRouteCounter = 0;
+let adjustmentFactor = 1.24; // Adjusted for route distance estimation compared to aerial distance
 let map = L.map("map").setView([0, 0], 13);
 let startMarker, destMarker;
 
@@ -212,6 +213,7 @@ function updateDistance() {
 }
 
 function updateProgressBar(remaining, initial) {
+  remaining = remaining * adjustmentFactor; // Adjust for route distance estimation
   const progress = Math.min(100, ((initial - remaining) / initial) * 100);
   document.getElementById("distance").innerText = `${(remaining / 1000).toFixed(
     2
@@ -253,7 +255,7 @@ function updateTrackingInformation() {
 }
 
 // Update every 10s
-setInterval(updateDistance, 50 * 1000);
+setInterval(updateDistance, 5 * 1000);
 // Run cleanup every hour
 setInterval(deleteOldTrackingData, 2 * 60 * 1000);
 
@@ -307,7 +309,7 @@ async function getDistanceFromTrackingHistory(xMins) {
 
     // return distance in meters (or convert to km)
     const totalKm = totalDistance / 1000;
-    const estimatedTotalKm = totalKm * 1.3;
+    const estimatedTotalKm = totalKm * adjustmentFactor;
 
     if (xMins == 15)
       document.getElementById(
@@ -460,6 +462,7 @@ document.getElementById("go-to-current").addEventListener("click", () => {
 });
 
 function getRoute(start_lat, start_lon, destination_lat, destination_lon) {
+  return;
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 18,
   }).addTo(map);
