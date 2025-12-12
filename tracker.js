@@ -779,7 +779,7 @@ function formatMinutesToHHMM(mins) {
 async function deleteOldTrackingData() {
   // getSizeOfDB();
   const now = Date.now();
-  const cutoff = now - 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+  const cutoff = now - 168 * 60 * 60 * 1000; // 168 hours in milliseconds
 
   try {
     const result = await dbTracking.allDocs({ include_docs: true });

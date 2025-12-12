@@ -121,7 +121,7 @@
             // Add current position marker
             currentMarker = L.marker([currentTrip.path[0].lat, currentTrip.path[0].lon], {
                 icon: L.icon({
-                    iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iOCIgZmlsbD0iIzI4YTc0NSIvPgo8L3N2Zz4K',
+                    iconUrl: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI3IiBjeT0iMTciIHI9IjQiIGZpbGw9IiM0Q0FGNTAiLz48Y2lyY2xlIGN4PSIxNyIgY3k9IjE3IiByPSI0IiBmaWxsPSIjNENCQUY1MCIvPjxwYXRoIGQ9Ik03IDE3IDEwIDEwIDEzIDE3IiBzdHJva2U9IiMyRTdEMzIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEwIDEwIDE0IDEwIDE3IDE3IiBzdHJva2U9IiMyRTdEMzIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIi8+PGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMS41IiBmaWxsPSIjMkU3RDMyIi8+PC9zdmc+",
                     iconSize: [16, 16],
                     iconAnchor: [8, 8]
                 })
@@ -182,6 +182,7 @@
             // Update progress
             const progress = (currentIndex / (currentTrip.path.length - 1)) * 100;
             document.getElementById('replay-progress').style.width = progress + '%';
+            document.getElementById('replay-progress').textContent = Math.floor(progress) + '%';
             
             // Update time
             const elapsed = Math.floor((currentIndex / currentTrip.path.length) * currentTrip.duration);
