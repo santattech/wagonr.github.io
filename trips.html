@@ -25,10 +25,18 @@
         async function loadTrips() {
             try {
                 const result = await dbTrips.allDocs({include_docs: true});
-                const trips = result.rows.map(row => row.doc).sort((a, b) => b.startTime - a.startTime);
+                const trips = result.rows.map(row => row.doc)
+                    .filter(trip => {
+                        // Filter out backup trips and incomplete trips
+                        return !trip.isBackup && trip.endTime && trip.duration && trip.avgSpeed;
+                    })
+                    .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
                 displayTrips(trips);
             } catch (error) {
-                document.getElementById('loading').textContent = 'Error loading trips';
+                console.error('Error loading trips:', error);
+                // Show actual error to user for debugging
+                alert('Error loading trips: ' + error.message + '\nCheck console for details');
+                document.getElementById('loading').textContent = 'Error loading trips: ' + error.message;
             }
         }
         
@@ -52,15 +60,15 @@
                     <div class="trip-details">
                         <div class="trip-stat">
                             <span class="label">Duration:</span>
-                            <span class="value">${trip.duration.toFixed(1)} min</span>
+                            <span class="value">${trip.duration ? trip.duration.toFixed(1) : '0'} min</span>
                         </div>
                         <div class="trip-stat">
                             <span class="label">Distance:</span>
-                            <span class="value">${trip.totalDistance.toFixed(2)} km</span>
+                            <span class="value">${trip.totalDistance ? trip.totalDistance.toFixed(2) : '0'} km</span>
                         </div>
                         <div class="trip-stat">
                             <span class="label">Avg Speed:</span>
-                            <span class="value">${trip.avgSpeed.toFixed(1)} km/h</span>
+                            <span class="value">${trip.avgSpeed ? trip.avgSpeed.toFixed(1) : '0'} km/h</span>
                         </div>
                     </div>
                     <div class="trip-footer">
