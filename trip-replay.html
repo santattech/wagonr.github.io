@@ -44,11 +44,41 @@
                     <span class="stat-label">Distance:</span>
                     <span id="current-distance" class="stat-value">0.0 km</span>
                 </div>
+                <div class="stat-item">
+                    <span class="stat-label">Top Speed:</span>
+                    <span id="top-speed" class="stat-value">0 km/h</span>
+                </div>
             </div>
             <div class="progress-info">
                 <span id="current-time">00:00</span> / <span id="total-time">00:00</span>
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="replay-progress">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="speed-analysis-card">
+            <h3>🚗 Speed Analysis</h3>
+            <div class="speed-breakdown">
+                <div class="speed-range">
+                    <span class="range-label">0-10 km/h:</span>
+                    <span class="range-value" id="value-0-10">0 km</span>
+                </div>
+                <div class="speed-range">
+                    <span class="range-label">10-30 km/h:</span>
+                    <span class="range-value" id="value-10-30">0 km</span>
+                </div>
+                <div class="speed-range">
+                    <span class="range-label">30-60 km/h:</span>
+                    <span class="range-value" id="value-30-60">0 km</span>
+                </div>
+                <div class="speed-range">
+                    <span class="range-label">60-80 km/h:</span>
+                    <span class="range-value" id="value-60-80">0 km</span>
+                </div>
+                <div class="speed-range">
+                    <span class="range-label">80+ km/h:</span>
+                    <span class="range-value" id="value-80-plus">0 km</span>
                 </div>
             </div>
         </div>
@@ -78,11 +108,92 @@
         async function loadTrip() {
             try {
                 currentTrip = await dbTrips.get(tripId);
+                
+                // If speed analysis doesn't exist, calculate it
+                if (!currentTrip.speedAnalysis) {
+                    currentTrip.speedAnalysis = calculateSpeedAnalysisForTrip(currentTrip);
+                    // Save updated trip with speed analysis
+                    await dbTrips.put(currentTrip);
+                }
+                
                 displayTripInfo();
+                displaySpeedAnalysis();
                 setupMap();
             } catch (error) {
                 document.getElementById('trip-title').textContent = 'Trip not found';
             }
+        }
+        
+        function displaySpeedAnalysis() {
+            if (!currentTrip.speedAnalysis) return;
+            
+            const speedRanges = currentTrip.speedAnalysis.speedRanges;
+            
+            // Display top speed
+            document.getElementById('top-speed').textContent = currentTrip.speedAnalysis.topSpeed + ' km/h';
+            
+            // Display speed breakdown
+            document.getElementById('value-0-10').textContent = speedRanges['0-10'].toFixed(2) + ' km';
+            document.getElementById('value-10-30').textContent = speedRanges['10-30'].toFixed(2) + ' km';
+            document.getElementById('value-30-60').textContent = speedRanges['30-60'].toFixed(2) + ' km';
+            document.getElementById('value-60-80').textContent = speedRanges['60-80'].toFixed(2) + ' km';
+            document.getElementById('value-80-plus').textContent = speedRanges['80+'].toFixed(2) + ' km';
+        }
+        
+        function calculateSpeedAnalysisForTrip(trip) {
+            if (!trip.path || trip.path.length < 2) {
+                return {
+                    speedRanges: {
+                        '0-10': 0,
+                        '10-30': 0,
+                        '30-60': 0,
+                        '60-80': 0,
+                        '80+': 0
+                    },
+                    topSpeed: 0
+                };
+            }
+            
+            const speedRanges = {
+                '0-10': 0,
+                '10-30': 0,
+                '30-60': 0,
+                '60-80': 0,
+                '80+': 0
+            };
+            
+            let topSpeed = 0;
+            
+            // Calculate speed between each point
+            for (let i = 1; i < trip.path.length; i++) {
+                const prevPoint = trip.path[i - 1];
+                const currentPoint = trip.path[i];
+                
+                const distance = calculateDistance(prevPoint.lat, prevPoint.lon, currentPoint.lat, currentPoint.lon);
+                const speed = distance * 3600; // Convert to km/h
+                
+                if (speed > topSpeed) {
+                    topSpeed = speed;
+                }
+                
+                // Categorize speed
+                if (speed <= 10) {
+                    speedRanges['0-10'] += distance;
+                } else if (speed <= 30) {
+                    speedRanges['10-30'] += distance;
+                } else if (speed <= 60) {
+                    speedRanges['30-60'] += distance;
+                } else if (speed <= 80) {
+                    speedRanges['60-80'] += distance;
+                } else {
+                    speedRanges['80+'] += distance;
+                }
+            }
+            
+            return {
+                speedRanges,
+                topSpeed: Math.round(topSpeed * 10) / 10
+            };
         }
         
         function displayTripInfo() {

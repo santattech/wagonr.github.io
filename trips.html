@@ -78,7 +78,7 @@
             }
             
             try {
-                // Delete main trip
+                // Delete main trip (includes speed analysis data)
                 const trip = await dbTrips.get(tripId);
                 await dbTrips.remove(trip);
                 
@@ -101,6 +101,8 @@
                 if (remainingCards.length === 0) {
                     document.getElementById('trips-list').innerHTML = '<p class="no-trips">No trips recorded yet</p>';
                 }
+                
+                console.log('Trip and associated speed analysis data deleted successfully');
                 
             } catch (error) {
                 alert('Error deleting trip: ' + error.message);

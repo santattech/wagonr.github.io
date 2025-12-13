@@ -552,6 +552,48 @@ input[type="number"] {
   height: 400px;
 }
 
+/* Speed Analysis */
+.speed-analysis-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.speed-analysis-card h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.speed-breakdown {
+  display: grid;
+  gap: 12px;
+}
+
+.speed-range {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #4a90e2;
+}
+
+.range-label {
+  font-weight: 500;
+  color: #495057;
+  font-size: 14px;
+}
+
+.range-value {
+  font-weight: bold;
+  color: #28a745;
+  font-size: 14px;
+}
+
 .trip-header {
   display: flex;
   justify-content: space-between;

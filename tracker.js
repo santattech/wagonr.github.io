@@ -103,6 +103,9 @@ function endTrip() {
   currentTrip.duration = (currentTrip.endTime - currentTrip.startTime) / 1000 / 60; // minutes
   currentTrip.avgSpeed = currentTrip.totalDistance / (currentTrip.duration / 60); // km/h
   
+  // Calculate speed analysis
+  currentTrip.speedAnalysis = calculateSpeedAnalysis();
+  
   // Store trip ID before clearing currentTrip
   const tripId = currentTrip.id;
   
@@ -238,6 +241,66 @@ function autoSaveTripData() {
   }).catch(err => {
     console.error('Auto-save failed:', err);
   });
+}
+
+function calculateSpeedAnalysis() {
+  if (!currentTrip.path || currentTrip.path.length < 2) {
+    return {
+      speedRanges: {
+        '0-10': 0,
+        '10-30': 0,
+        '30-60': 0,
+        '60-80': 0,
+        '80+': 0
+      },
+      topSpeed: 0
+    };
+  }
+  
+  const speedRanges = {
+    '0-10': 0,
+    '10-30': 0,
+    '30-60': 0,
+    '60-80': 0,
+    '80+': 0
+  };
+  
+  let topSpeed = 0;
+  
+  // Calculate speed between each point and distance covered at that speed
+  for (let i = 1; i < currentTrip.path.length; i++) {
+    const prevPoint = currentTrip.path[i - 1];
+    const currentPoint = currentTrip.path[i];
+    
+    // Calculate distance between points
+    const distance = calculateDistance(prevPoint.lat, prevPoint.lon, currentPoint.lat, currentPoint.lon);
+    
+    // Calculate speed (assuming 1 second between points for simplicity)
+    const speed = distance * 3600; // Convert to km/h
+    
+    // Update top speed
+    if (speed > topSpeed) {
+      topSpeed = speed;
+    }
+    
+    // Categorize speed and add distance
+    if (speed <= 10) {
+      speedRanges['0-10'] += distance;
+    } else if (speed <= 30) {
+      speedRanges['10-30'] += distance;
+    } else if (speed <= 60) {
+      speedRanges['30-60'] += distance;
+    } else if (speed <= 80) {
+      speedRanges['60-80'] += distance;
+    } else {
+      speedRanges['80+'] += distance;
+    }
+  }
+  
+  return {
+    speedRanges,
+    topSpeed: Math.round(topSpeed * 10) / 10 // Round to 1 decimal
+  };
 }
 
 // Background tracking functions
