@@ -426,67 +426,76 @@ document.querySelectorAll(".collapsible").forEach((btn) => {
 
 // location select dropdown onchange functionality
 const locationSelect = document.getElementById("locationSelect");
-const latInput = document.getElementById("lat");
-const lonInput = document.getElementById("lon");
 
 locationSelect.addEventListener("change", function () {
   const value = this.value;
   if (value) {
     const [lat, lon] = value.split(",");
-    latInput.value = lat;
-    lonInput.value = lon;
-    handleDestinationInput();
+    setDestination(parseFloat(lat), parseFloat(lon));
   } else {
-    latInput.value = "";
-    lonInput.value = "";
+    clearDestination();
   }
 });
 
-// Input listener
-document.querySelectorAll("#lat, #lon").forEach((input) => {
-  input.addEventListener("input", handleDestinationInput);
-});
+function setDestination(lat, lon) {
+  destination = { lat, lon };
 
-function handleDestinationInput() {
-  const lat = parseFloat(document.getElementById("lat").value);
-  const lon = parseFloat(document.getElementById("lon").value);
+  if (destMarker) map.removeLayer(destMarker);
+  destMarker = L.marker([lat, lon], { title: "Destination" }).addTo(map);
 
-  if (!isNaN(lat) && !isNaN(lon)) {
-    destination = { lat, lon };
+  // Only set initialDistance once when setting destination and have current position
+  if (start) {
+    initialDistance = haversineDistance(start.lat, start.lon, lat, lon);
 
-    if (destMarker) map.removeLayer(destMarker);
-
-    destMarker = L.marker([lat, lon], { title: "Destination" }).addTo(map);
-
-    // Only set initialDistance once when setting destination and have current position
-    if (start) {
-      initialDistance = haversineDistance(start.lat, start.lon, lat, lon);
-
-      // Save lat, lon, and initialDistance in PouchDB
-      db.get("destination")
-        .then((doc) => {
-          // db.remove(doc); // remove old doc
-          return db.put({
-            ...doc,
+    // Save destination in PouchDB
+    db.get("destination")
+      .then((doc) => {
+        return db.put({
+          ...doc,
+          lat,
+          lon,
+          initialDistance,
+        });
+      })
+      .catch((err) => {
+        // If not found, create new
+        if (err.name === "not_found") {
+          db.put({
+            _id: "destination",
             lat,
             lon,
             initialDistance,
           });
-        })
-        .catch((err) => {
-          // If not found, create new
-          if (err.name === "not_found") {
-            db.put({
-              _id: "destination",
-              lat,
-              lon,
-              initialDistance,
-            });
-          }
-        });
-    }
+        }
+      });
 
+    // Draw straight line from start to destination
+    if (straightLine) map.removeLayer(straightLine);
+    straightLine = L.polyline([[start.lat, start.lon], [lat, lon]], {
+      color: "red",
+      weight: 2,
+      dashArray: "5, 10",
+    }).addTo(map);
+
+    // Get route and draw it
+    getRoute(start.lat, start.lon, lat, lon);
     updateDistance(); // trigger initial update
+  }
+}
+
+function clearDestination() {
+  destination = null;
+  if (destMarker) {
+    map.removeLayer(destMarker);
+    destMarker = null;
+  }
+  if (straightLine) {
+    map.removeLayer(straightLine);
+    straightLine = null;
+  }
+  if (routeLine) {
+    map.removeLayer(routeLine);
+    routeLine = null;
   }
 }
 

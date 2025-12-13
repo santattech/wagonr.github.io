@@ -44,17 +44,62 @@
               <option value="22.613621,88.430637">HDFC ATM</option>
             </select>
           </label>
-          <br />
-          <label>Latitude: <input type="number" id="lat" /></label>
-          <label>Longitude: <input type="number" id="lon" /></label>
         </div>
       </section>
 
       <section class="section-card">
-        <button class="collapsible">📡 GPS Signal</button>
+        <button class="collapsible">⚙️ Advanced Settings</button>
+        <div class="content" style="display: none;">
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label>🔋 GPS Update Interval:
+                <select id="gps-interval">
+                  <option value="1000">High Accuracy (1s)</option>
+                  <option value="5000" selected>Balanced (5s)</option>
+                  <option value="10000">Battery Saver (10s)</option>
+                  <option value="30000">Ultra Saver (30s)</option>
+                </select>
+              </label>
+              <p class="setting-info">Current: <span id="current-interval">5s</span></p>
+            </div>
+            
+            <div class="setting-item">
+              <label class="toggle-label">
+                <input type="checkbox" id="auto-trip-detection"> 
+                🤖 Auto Trip Detection
+              </label>
+              <p class="setting-info">Start/end trips automatically</p>
+            </div>
+            
+            <div class="setting-item">
+              <label class="toggle-label">
+                <input type="checkbox" id="background-tracking"> 
+                📱 Background Tracking
+              </label>
+              <p class="setting-info">Keep tracking when screen is off</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <button class="collapsible">🚗 Trip Controls</button>
+        <div class="content">
+          <div class="trip-controls-grid">
+            <button id="start-trip" class="primary-btn">🚗 Start Trip</button>
+            <button id="end-trip" class="secondary-btn" disabled>⏹️ End Trip</button>
+          </div>
+          <a href="trips.html" class="link-btn">📋 View Trip History</a>
+          <div id="trip-status" class="trip-status"></div>
+          <div id="auto-save-status" class="auto-save-status"></div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <button class="collapsible">📏 Distance Info</button>
         <div class="content">
           <div class="accuracy-indicator">
-            <span class="signal-label">Signal Strength:</span>
+            <span class="signal-label">📡 GPS:</span>
             <div class="signal-bars">
               <div class="bar" id="bar1"></div>
               <div class="bar" id="bar2"></div>
@@ -64,57 +109,18 @@
             <span id="accuracy-text">Searching...</span>
           </div>
           <p class="accuracy-info">Accuracy: <span id="accuracy-value">-- meters</span></p>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <button class="collapsible">🔋 Battery Settings</button>
-        <div class="content">
-          <label>GPS Update Interval:
-            <select id="gps-interval">
-              <option value="1000">High Accuracy (1s)</option>
-              <option value="5000" selected>Balanced (5s)</option>
-              <option value="10000">Battery Saver (10s)</option>
-              <option value="30000">Ultra Saver (30s)</option>
-            </select>
-          </label>
-          <p class="battery-info">Current: <span id="current-interval">5s</span></p>
           
-          <label class="auto-trip-toggle">
-            <input type="checkbox" id="auto-trip-detection"> Auto Trip Detection
-          </label>
-          <p class="auto-trip-info">Automatically start/end trips when moving/stationary</p>
-          
-          <label class="background-tracking-toggle">
-            <input type="checkbox" id="background-tracking"> Background Tracking
-          </label>
-          <p class="background-info">Keep tracking location when screen is off (mobile)</p>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <button class="collapsible">🚗 Trip Controls</button>
-        <div class="content">
-          <button id="start-trip" class="trip-btn start-btn">Start Trip</button>
-          <button id="end-trip" class="trip-btn end-btn" disabled>End Trip</button>
-          <a href="trips.html" class="trip-btn list-btn">View Trips</a>
-          <div id="trip-status" class="trip-status"></div>
-          <div id="auto-save-status" class="auto-save-status"></div>
-        </div>
-      </section>
-
-      <section class="section-card">
-        <button class="collapsible">📏 Distance Info</button>
-        <div class="content">
-          <p>Distance from current location to destination:</p>
-          <p id="distance">Calculating...</p>
+          <p class="distance-label">📏 Distance to destination:</p>
+          <p id="distance" class="distance-value">
+            <span class="spinner">⏳</span> Calculating...
+          </p>
           <div class="progress-bar-container">
             <div class="progress-bar" id="progress-bar">0%</div>
           </div>
 
           <div class="floating-speed-div">
             <div class="speed" id="current-speed">0 kmph</div>
-            <div class="label">speed</div>
+            <div class="label">🚗 speed</div>
           </div>
           <button id="go-to-current" class="floating-button">
             📍 Go to My Location
