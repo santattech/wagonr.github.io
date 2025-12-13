@@ -561,15 +561,32 @@ input[type="number"] {
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+.speed-analysis-card.compact {
+  padding: 12px;
+  margin: 15px 0;
+}
+
 .speed-analysis-card h3 {
   margin: 0 0 15px 0;
   color: #2c3e50;
   font-size: 18px;
 }
 
+.speed-analysis-card h4 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
 .speed-breakdown {
   display: grid;
   gap: 12px;
+}
+
+.speed-breakdown.compact {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .speed-range {
@@ -582,16 +599,35 @@ input[type="number"] {
   border-left: 4px solid #4a90e2;
 }
 
+.compact .speed-range {
+  flex: 1;
+  min-width: 80px;
+  padding: 6px 8px;
+  flex-direction: column;
+  text-align: center;
+  border-left: none;
+  border-top: 3px solid #4a90e2;
+}
+
 .range-label {
   font-weight: 500;
   color: #495057;
   font-size: 14px;
 }
 
+.compact .range-label {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
 .range-value {
   font-weight: bold;
   color: #28a745;
   font-size: 14px;
+}
+
+.compact .range-value {
+  font-size: 12px;
 }
 
 .trip-header {

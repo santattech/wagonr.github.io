@@ -57,33 +57,33 @@
             </div>
         </div>
         
-        <div class="speed-analysis-card">
-            <h3>🚗 Speed Analysis</h3>
-            <div class="speed-breakdown">
+        <div id="replay-map" class="map-container"></div>
+        
+        <div class="speed-analysis-card compact">
+            <h4>🚗 Speed Analysis</h4>
+            <div class="speed-breakdown compact">
                 <div class="speed-range">
-                    <span class="range-label">0-10 km/h:</span>
-                    <span class="range-value" id="value-0-10">0 km</span>
+                    <span class="range-label">0-10:</span>
+                    <span class="range-value" id="value-0-10">0km</span>
                 </div>
                 <div class="speed-range">
-                    <span class="range-label">10-30 km/h:</span>
-                    <span class="range-value" id="value-10-30">0 km</span>
+                    <span class="range-label">10-30:</span>
+                    <span class="range-value" id="value-10-30">0km</span>
                 </div>
                 <div class="speed-range">
-                    <span class="range-label">30-60 km/h:</span>
-                    <span class="range-value" id="value-30-60">0 km</span>
+                    <span class="range-label">30-60:</span>
+                    <span class="range-value" id="value-30-60">0km</span>
                 </div>
                 <div class="speed-range">
-                    <span class="range-label">60-80 km/h:</span>
-                    <span class="range-value" id="value-60-80">0 km</span>
+                    <span class="range-label">60-80:</span>
+                    <span class="range-value" id="value-60-80">0km</span>
                 </div>
                 <div class="speed-range">
-                    <span class="range-label">80+ km/h:</span>
-                    <span class="range-value" id="value-80-plus">0 km</span>
+                    <span class="range-label">80+:</span>
+                    <span class="range-value" id="value-80-plus">0km</span>
                 </div>
             </div>
         </div>
-        
-        <div id="replay-map" class="map-container"></div>
     </div>
 
     <script>
@@ -132,12 +132,12 @@
             // Display top speed
             document.getElementById('top-speed').textContent = currentTrip.speedAnalysis.topSpeed + ' km/h';
             
-            // Display speed breakdown
-            document.getElementById('value-0-10').textContent = speedRanges['0-10'].toFixed(2) + ' km';
-            document.getElementById('value-10-30').textContent = speedRanges['10-30'].toFixed(2) + ' km';
-            document.getElementById('value-30-60').textContent = speedRanges['30-60'].toFixed(2) + ' km';
-            document.getElementById('value-60-80').textContent = speedRanges['60-80'].toFixed(2) + ' km';
-            document.getElementById('value-80-plus').textContent = speedRanges['80+'].toFixed(2) + ' km';
+            // Display speed breakdown (compact format)
+            document.getElementById('value-0-10').textContent = speedRanges['0-10'].toFixed(1) + 'km';
+            document.getElementById('value-10-30').textContent = speedRanges['10-30'].toFixed(1) + 'km';
+            document.getElementById('value-30-60').textContent = speedRanges['30-60'].toFixed(1) + 'km';
+            document.getElementById('value-60-80').textContent = speedRanges['60-80'].toFixed(1) + 'km';
+            document.getElementById('value-80-plus').textContent = speedRanges['80+'].toFixed(1) + 'km';
         }
         
         function calculateSpeedAnalysisForTrip(trip) {
