@@ -30,14 +30,6 @@ let isMoving = false;
 let wakeLock = null;
 let backgroundTrackingEnabled = false;
 
-function startLocationTracking() {
-  watchId = navigator.geolocation.watchPosition(updateTripLocation, null, {
-    enableHighAccuracy: true,
-    maximumAge: gpsUpdateInterval,
-    timeout: gpsUpdateInterval + 2000
-  });
-}
-
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
     .register("service-worker.js")
@@ -309,15 +301,31 @@ async function enableBackgroundTracking() {
     // Request wake lock to keep screen tracking active
     if ('wakeLock' in navigator) {
       wakeLock = await navigator.wakeLock.request('screen');
-      console.log('Wake lock acquired');
+      console.log('Wake lock acquired for background tracking');
+      
+      // Re-acquire wake lock if it gets released
+      wakeLock.addEventListener('release', () => {
+        console.log('Wake lock released, attempting to re-acquire');
+        if (backgroundTrackingEnabled && currentTrip) {
+          setTimeout(async () => {
+            try {
+              wakeLock = await navigator.wakeLock.request('screen');
+            } catch (e) {
+              console.error('Failed to re-acquire wake lock:', e);
+            }
+          }, 1000);
+        }
+      });
     }
     
     // Start service worker background sync
     if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
       const registration = await navigator.serviceWorker.ready;
-      registration.active.postMessage({
-        type: 'START_BACKGROUND_TRACKING'
-      });
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'START_BACKGROUND_TRACKING'
+        });
+      }
     }
     
     backgroundTrackingEnabled = true;
@@ -325,8 +333,15 @@ async function enableBackgroundTracking() {
     // Listen for visibility changes
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
+    // Force more frequent updates when background tracking is enabled
+    if (currentTrip && watchId) {
+      navigator.geolocation.clearWatch(watchId);
+      startLocationTracking(true); // Force high accuracy mode
+    }
+    
   } catch (error) {
     console.error('Failed to enable background tracking:', error);
+    alert('Background tracking may not work properly on this device. Keep screen on for best results.');
   }
 }
 
@@ -353,12 +368,55 @@ function disableBackgroundTracking() {
 
 function handleVisibilityChange() {
   if (document.hidden && backgroundTrackingEnabled && currentTrip) {
-    // Page is hidden, ensure background tracking continues
-    console.log('Page hidden, maintaining background tracking');
+    // Page is hidden, try to maintain tracking with aggressive settings
+    console.log('Page hidden, attempting to maintain background tracking');
+    
+    // Restart location tracking with more aggressive settings
+    if (watchId) {
+      navigator.geolocation.clearWatch(watchId);
+    }
+    
+    watchId = navigator.geolocation.watchPosition(updateTripLocation, 
+      (error) => {
+        console.error('Background location error:', error);
+      }, {
+        enableHighAccuracy: true,
+        maximumAge: 0, // Don't use cached positions
+        timeout: 15000 // Longer timeout for background
+      }
+    );
+    
   } else if (!document.hidden && backgroundTrackingEnabled) {
-    // Page is visible again
-    console.log('Page visible, resuming foreground tracking');
+    // Page is visible again, resume normal tracking
+    console.log('Page visible, resuming normal tracking');
+    if (currentTrip) {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+      startLocationTracking();
+    }
   }
+}
+
+function startLocationTracking(forceHighAccuracy = false) {
+  const options = {
+    enableHighAccuracy: forceHighAccuracy || backgroundTrackingEnabled,
+    maximumAge: forceHighAccuracy ? 0 : gpsUpdateInterval,
+    timeout: (forceHighAccuracy ? 15000 : gpsUpdateInterval + 5000)
+  };
+  
+  console.log('Starting location tracking with options:', options);
+  
+  watchId = navigator.geolocation.watchPosition(updateTripLocation, 
+    (error) => {
+      console.error('Location tracking error:', error);
+      // Try to restart tracking after error
+      if (currentTrip) {
+        setTimeout(() => startLocationTracking(forceHighAccuracy), 5000);
+      }
+    }, 
+    options
+  );
 }
 
 // Listen for service worker messages
