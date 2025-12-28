@@ -274,17 +274,9 @@
             const point = currentTrip.path[currentIndex];
             currentMarker.setLatLng([point.lat, point.lon]);
             
-            // Calculate speed between points
-            let speed = 0;
-            if (currentIndex > 0) {
-                const prevPoint = currentTrip.path[currentIndex - 1];
-                const distance = calculateDistance(prevPoint.lat, prevPoint.lon, point.lat, point.lon);
-                const timeInterval = 1; // Assuming 1 second between points
-                speed = (distance / timeInterval) * 3600; // Convert to km/h
-            }
-            
-            // Update speed display
-            document.getElementById('current-replay-speed').textContent = speed.toFixed(1) + ' km/h';
+            // Show average speed instead of calculated speed to avoid unrealistic values
+            const avgSpeed = currentTrip.avgSpeed || 0;
+            document.getElementById('current-replay-speed').textContent = avgSpeed.toFixed(1) + ' km/h';
             
             // Update distance
             const totalDistance = (currentIndex / currentTrip.path.length) * currentTrip.totalDistance;

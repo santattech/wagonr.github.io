@@ -156,6 +156,9 @@ function updateTripLocation(pos) {
     tripPath.push(newPos);
     currentTrip.path = tripPath;
     
+    // Send location to API
+    sendLocationToAPI(latitude, longitude);
+    
     // Update trip polyline
     if (tripPath.length > 1) {
       if (tripPolyline) {
@@ -163,6 +166,34 @@ function updateTripLocation(pos) {
       }
       tripPolyline = L.polyline(tripPath.map(p => [p.lat, p.lon]), {color: 'blue', weight: 4}).addTo(map);
     }
+  }
+}
+
+async function sendLocationToAPI(lat, lng) {
+  if (!currentTrip) return;
+  
+  try {
+    const tripDuration = (Date.now() - new Date(currentTrip.startTime)) / 1000 / 60; // minutes
+    const tripDetails = `Started at ${new Date(currentTrip.startTime).toLocaleTimeString()}, travelled ${currentTrip.totalDistance.toFixed(2)}km in ${tripDuration.toFixed(1)} minutes`;
+    
+    const response = await fetch('https://77d7fd6fee7d.ngrok-free.app/api/v1/locations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'WAGON-R-GPS-Tracker/1.0'
+      },
+      body: JSON.stringify({
+        lat: lat,
+        lng: lng,
+        trip_details: tripDetails
+      })
+    });
+    
+    if (!response.ok) {
+      console.warn('Failed to send location to API:', response.status);
+    }
+  } catch (error) {
+    console.error('Error sending location to API:', error);
   }
 }
 
