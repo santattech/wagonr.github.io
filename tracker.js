@@ -29,6 +29,8 @@ let isMoving = false;
 // Background tracking variables
 let wakeLock = null;
 let backgroundTrackingEnabled = false;
+let lastApiCallTime = 0;
+let apiCallInterval = 30000; // Send to API every 30 seconds
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker
@@ -156,8 +158,12 @@ function updateTripLocation(pos) {
     tripPath.push(newPos);
     currentTrip.path = tripPath;
     
-    // Send location to API
-    sendLocationToAPI(latitude, longitude);
+    // Send location to API (throttled)
+    const now = Date.now();
+    if (now - lastApiCallTime >= apiCallInterval) {
+      sendLocationToAPI(latitude, longitude);
+      lastApiCallTime = now;
+    }
     
     // Update trip polyline
     if (tripPath.length > 1) {
@@ -178,9 +184,11 @@ async function sendLocationToAPI(lat, lng) {
     
     const response = await fetch('https://77d7fd6fee7d.ngrok-free.app/api/v1/locations', {
       method: 'POST',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'WAGON-R-GPS-Tracker/1.0'
+        'User-Agent': 'WAGON-R-GPS-Tracker/1.0',
+        'ngrok-skip-browser-warning': 'true'
       },
       body: JSON.stringify({
         lat: lat,
@@ -190,10 +198,13 @@ async function sendLocationToAPI(lat, lng) {
     });
     
     if (!response.ok) {
-      console.warn('Failed to send location to API:', response.status);
+      console.warn('Failed to send location to API:', response.status, response.statusText);
+    } else {
+      console.log('Location sent to API successfully');
     }
   } catch (error) {
     console.error('Error sending location to API:', error);
+    // Don't show alerts to user for API errors to avoid interrupting the trip
   }
 }
 

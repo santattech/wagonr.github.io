@@ -274,13 +274,16 @@
             const point = currentTrip.path[currentIndex];
             currentMarker.setLatLng([point.lat, point.lon]);
             
-            // Show average speed instead of calculated speed to avoid unrealistic values
-            const avgSpeed = currentTrip.avgSpeed || 0;
-            document.getElementById('current-replay-speed').textContent = avgSpeed.toFixed(1) + ' km/h';
+            // Calculate progressive average speed up to current point
+            const elapsedTime = (currentIndex / currentTrip.path.length) * currentTrip.duration; // minutes
+            const distanceCovered = (currentIndex / currentTrip.path.length) * currentTrip.totalDistance; // km
+            const progressiveAvgSpeed = elapsedTime > 0 ? (distanceCovered / (elapsedTime / 60)) : 0; // km/h
+            
+            // Update speed display with progressive average
+            document.getElementById('current-replay-speed').textContent = progressiveAvgSpeed.toFixed(1) + ' km/h';
             
             // Update distance
-            const totalDistance = (currentIndex / currentTrip.path.length) * currentTrip.totalDistance;
-            document.getElementById('current-distance').textContent = totalDistance.toFixed(2) + ' km';
+            document.getElementById('current-distance').textContent = distanceCovered.toFixed(2) + ' km';
             
             // Update progress
             const progress = (currentIndex / (currentTrip.path.length - 1)) * 100;
@@ -288,7 +291,7 @@
             document.getElementById('replay-progress').textContent = Math.floor(progress) + '%';
             
             // Update time
-            const elapsed = Math.floor((currentIndex / currentTrip.path.length) * currentTrip.duration);
+            const elapsed = Math.floor(elapsedTime);
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;
             document.getElementById('current-time').textContent = 
